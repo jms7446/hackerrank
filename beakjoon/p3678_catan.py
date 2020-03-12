@@ -25,7 +25,6 @@ class ResourceCounter:
 
     def __str__(self):
         return str(self.counter)
-        # return str(list(enumerate(self.counter)))
 
 
 def init_katan_table(num_layers):
@@ -55,7 +54,7 @@ def init_katan_table(num_layers):
                     excludes.append(layer[0])
 
                 selected_resource = counter.select_resource(excludes)
-                # print(f"{layer_idx:02d} - {pos_in_layer:03d} : {selected_resource} selected, counter: {counter}, exclude: {excludes}")
+                # print(f"{layer_idx:02d} - {pos_in_layer:03d} : {selected_resource}, {counter}, {excludes}")
                 layer[pos_in_layer] = selected_resource
                 counter.increase(selected_resource)
 
@@ -77,14 +76,13 @@ def calc_num_layers(pos):
 def katan(pos_list):
     max_pos = max(pos_list)
     num_layers = calc_num_layers(max_pos)
-    num_layers = 80
     table = init_katan_table(num_layers)
     return [table[pos - 1] + 1 for pos in pos_list]
 
 
 def read_input_lines_with_count_header():
     import sys
-    N = int(sys.stdin.readline())
+    _ = int(sys.stdin.readline())
     inputs = [line.rstrip() for line in sys.stdin.readlines()]
     return inputs
 
@@ -93,7 +91,6 @@ def main():
     res = katan([int(x) for x in read_input_lines_with_count_header()])
     for x in res:
         print(x)
-    # print("\n".join(str(x) for x in res))
 
 
 if __name__ == "__main__":
