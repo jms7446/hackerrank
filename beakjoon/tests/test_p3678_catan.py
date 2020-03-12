@@ -1,4 +1,4 @@
-from beakjoon.p3678 import katan, main, init_katan_table, calc_num_layers
+from beakjoon.p3678_catan import katan, main, init_katan_table, calc_num_layers
 from util import result_check
 
 
@@ -27,4 +27,8 @@ def test_main():
 5
     """.strip()
     assert result_check.get_output_with_stdin(main, inputs).strip() == outputs
+
+
+def test_init_katan_table_1():
+    init_katan_table(4)
 

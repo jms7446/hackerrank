@@ -1,3 +1,6 @@
+# https://www.acmicpc.net/problem/3678
+# success
+
 HEX = 6
 NUM_RESOURCE = 5
 CENTER_RESOURCE = 0
@@ -19,6 +22,10 @@ class ResourceCounter:
 
     def increase(self, resource):
         self.counter[resource] += 1
+
+    def __str__(self):
+        return str(self.counter)
+        # return str(list(enumerate(self.counter)))
 
 
 def init_katan_table(num_layers):
@@ -44,8 +51,11 @@ def init_katan_table(num_layers):
                 if idx < line_len - 1:
                     excludes.append(pre_layer[pos_in_pre_layer])
                     pos_in_pre_layer += 1
+                elif line_idx == HEX - 1:
+                    excludes.append(layer[0])
 
                 selected_resource = counter.select_resource(excludes)
+                # print(f"{layer_idx:02d} - {pos_in_layer:03d} : {selected_resource} selected, counter: {counter}, exclude: {excludes}")
                 layer[pos_in_layer] = selected_resource
                 counter.increase(selected_resource)
 
