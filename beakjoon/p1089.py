@@ -8,7 +8,7 @@ number_map = None
 
 
 def replace_str_by_index(s, pos, r):
-    return s[:pos] + r + s[pos + 1:]
+    return "".join([s[:pos] + r + s[pos + 1:]])
 
 
 def parse_numbers(displayed, N):
@@ -16,22 +16,19 @@ def parse_numbers(displayed, N):
     return display_numbers
 
 
-def make_possible_numbers(shape, pos):
+def make_possible_numbers(shape):
     if shape in cache:
-        return cache[(shape, pos)]
+        return cache[shape]
+    if number_map.get(shape, None) == 8:
+        return {8}
 
-    if pos >= len(shape):
-        return set()
+    possible_numbers = {number_map[shape]} if shape in number_map else set()
+    for i, c in enumerate(shape):
+        if i not in INVALIDS and c == ".":
+            new_shape = replace_str_by_index(shape, i, "#")
+            possible_numbers = possible_numbers.union(make_possible_numbers(new_shape))
 
-    possible_numbers = set()
-    if shape in number_map:
-        possible_numbers.add(number_map[shape])
-    possible_numbers = possible_numbers.union(make_possible_numbers(shape, pos + 1))
-    if shape[pos] == "." and pos not in INVALIDS:
-        new_shape = replace_str_by_index(shape, pos, "#")
-        possible_numbers = possible_numbers.union(make_possible_numbers(new_shape, pos))
-
-    cache[(shape, pos)] = possible_numbers
+    cache[shape] = possible_numbers
     return possible_numbers
 
 
@@ -57,11 +54,9 @@ def solve(displayed, N):
     global number_map
     number_map = make_number_map()
     displayed_numbers = parse_numbers(displayed, N)
-    possible_numbers_list = [make_possible_numbers(displayed_number, 0) for displayed_number in displayed_numbers]
+    possible_numbers_list = [make_possible_numbers(displayed_number) for displayed_number in displayed_numbers]
     if any(len(numbers) == 0 for numbers in possible_numbers_list):
         return -1
-    # numbers = [make_number(digits) for digits in product(*possible_numbers_list)]
-    # return sum(numbers) / len(numbers)
     return sum(sum(numbers) * 10 ** (N - i - 1) / len(numbers) for i, numbers in enumerate(possible_numbers_list))
 
 
@@ -113,7 +108,7 @@ def test_possible_numbers():
 ..#    
 """.split())
 
-    print(make_possible_numbers(in_str, 0), file=sys.stderr)
+    print(make_possible_numbers(in_str), file=sys.stderr)
 
 
 def test_make_number():
