@@ -38,7 +38,15 @@ class PossibleNumbers:
         idx_of_digits = number_to_digits(idx, base=self._base, length=self.n)
         return digits_to_number([self.digits[d] for d in idx_of_digits])
 
-    def upper(self):
+    def loc(self, idx):
+        if idx == len(self):
+            return self._upper()
+        elif idx == -1:
+            return self._lower()
+        else:
+            return self[idx]
+
+    def _upper(self):
         if self.digits[0] == 0:
             if len(self.digits) == 1:
                 return 0
@@ -47,7 +55,7 @@ class PossibleNumbers:
         else:
             return digits_to_number([self.digits[0]] * (self.n + 1))
 
-    def lower(self):
+    def _lower(self):
         if self.n == 1:
             return self.digits[0]
         else:
@@ -64,12 +72,7 @@ def calc_count_with_digits(target, valid_digits):
 
     possible_numbers = PossibleNumbers(valid_digits, len(str(target)))
     idx = bisect_left(possible_numbers, target)
-    if idx == len(possible_numbers):
-        candidates = [possible_numbers.upper(), possible_numbers[idx-1]]
-    elif idx == 0:
-        candidates = [possible_numbers[idx], possible_numbers.lower()]
-    else:
-        candidates = [possible_numbers[idx], possible_numbers[idx-1]]
+    candidates = [possible_numbers.loc(idx), possible_numbers.loc(idx-1)]
     return min(calc_button_count_by_number(number) for number in candidates)
 
 
@@ -155,19 +158,20 @@ def test_PossibleNumbers():
     pn = PossibleNumbers([1, 3, 4], 2)
     assert len(pn) == 9
     assert pn[0] == 11
-    assert pn.lower() == 4
-    assert pn.upper() == 111
+    assert pn.loc(0) == 11
+    assert pn.loc(-1) == 4
+    assert pn.loc(9) == 111
 
 
 def test_PossibleNumbers_lower_upper():
     pn = PossibleNumbers([8, 9], 4)
-    assert pn.lower() == 999
-    assert pn.upper() == 88888
+    assert pn.loc(-1) == 999
+    assert pn.loc(len(pn)) == 88888
 
 
 def test_PossibleNumbers_upper_with_zero():
-    assert PossibleNumbers([0, 8, 9], 4).upper() == 80000
-    assert PossibleNumbers([0], 4).upper() == 0
+    assert PossibleNumbers([0, 8, 9], 4)._upper() == 80000
+    assert PossibleNumbers([0], 4)._upper() == 0
 
 
 def test_solve():
