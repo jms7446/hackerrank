@@ -1,7 +1,7 @@
 import sys
 
 
-def solve(bridges):
+def solve2(bridges):
     width = max(bridges, key=lambda b: b[2])[2]
     heights = [0] * width
     bridges = sorted(bridge for bridge in bridges)
@@ -11,6 +11,25 @@ def solve(bridges):
         result += y - heights[x2 - 1]
         for x in range(x1, x2):
             heights[x] = y
+    return result
+
+
+def solve(bridges):
+    bridges = sorted(bridge for bridge in bridges)
+    result = 0
+    for i, (y, x1, x2) in enumerate(bridges):
+        result += 2 * y
+        for j in reversed(range(i)):
+            b = bridges[j]
+            if b[1] <= x1 < b[2]:
+                result -= b[0]
+                break
+        for j in reversed(range(i)):
+            b = bridges[j]
+            if b[1] <= x2 - 1 < b[2]:
+                result -= b[0]
+                break
+
     return result
 
 
