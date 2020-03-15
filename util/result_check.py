@@ -1,6 +1,7 @@
 from unittest.mock import patch
 from io import StringIO
 import time
+import sys
 
 MAX_LOOP = 10 ** 8
 
@@ -23,3 +24,5 @@ def iter_run(func, loop=1, time_limit=None, gen=None):
             func(*gen())
         else:
             func()
+    elapse_time = time.time() - st
+    print(f"elapse time: {elapse_time}", file=sys.stderr)
