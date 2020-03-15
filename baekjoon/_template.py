@@ -11,6 +11,7 @@ def main():
     for _ in range(PN):
         N, M = [int(x) for x in stdin.readline().split()]
         _ = [[int(x) - 1 for x in stdin.readline().split()] for _ in range(M)]
+        _ = [int(x) for x in stdin.readline().split()]
         print(solve())
 
 
