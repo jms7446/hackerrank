@@ -122,6 +122,7 @@ class Solver:
                     elif mark == "#" and p.location == self.target:
                         return mirror_count
             mirror_count += 1
+        return -1
 
 
 def main():
@@ -153,35 +154,33 @@ def test_main():
 def test_solver():
     import random
     import time
+    from beakjoon.p2151_short import solve
 
     def gen_map(n):
         def gen_tile():
             r = random.random()
             if r < 0.3:
                 return "*"
-            elif r < 0.8:
+            elif r < 0.7:
                 return "."
             else:
                 return "!"
         c_lists = [[gen_tile() for _ in range(n)] for _ in range(n)]
-        for _ in range(2):
+        sharp_set = set()
+        while True:
             x, y = random.randint(0, n - 1), random.randint(0, n - 1)
             c_lists[y][x] = "#"
+            sharp_set.add((x, y))
+            if len(sharp_set) == 2:
+                break
         return ["".join(cs) for cs in c_lists]
 
     for _ in range(100000):
-        st = time.time()
-        s_list = gen_map(50)
-        try:
-            solver = Solver(s_list)
-            solver.solve()
-        except Exception as ex:
-            pass
-            # print(ex)
-            # print("\n".join(s_list), file=sys.stderr)
-            # assert False
-        et = time.time() - st
-        if et > 0.1:
-            print("elapse time: ", et, file=sys.stderr)
+        s_list = gen_map(10)
+        solver = Solver(s_list)
+        r1 = solver.solve()
+        r2 = solve(s_list)
+        if r1 != r2:
+            print(f"r1: {r1}, r2: {r2}")
             print("\n".join(s_list), file=sys.stderr)
             assert False
