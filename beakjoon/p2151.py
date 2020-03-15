@@ -67,7 +67,14 @@ def reflect(direction: Direction, mirror: Mirror) -> Direction:
 class ProceedInfo:
     location: Point
     direction: Direction
-    mirrors: dict = field(default_factory=dict)
+
+    def copy(self, location=None, direction=None):
+        copied = deepcopy(self)
+        if location is not None:
+            copied.location = location
+        if direction is not None:
+            copied.direction = direction
+        return copied
 
 
 class HouseMap:
@@ -96,48 +103,25 @@ class Solver:
 
     def solve(self):
         que = deque([ProceedInfo(self.start, direction) for direction in DIRECTIONS])
-        i = 0
+        mirror_count = 0
         while que:
-            # print("               start while", len(que), file=sys.stderr)
-            p = que.popleft()
-            status = self._proceed(p)
-            if status == Status.TERMINATE:
-                # print("terminate", file=sys.stderr)
-                pass
-            elif status == Status.BRANCH:
-                for mirror in MIRRORS:
-                    new_p = deepcopy(p)
-                    new_p.mirrors[new_p.location] = mirror
-                    new_p.direction = reflect(new_p.direction, mirror)
-                    que.append(new_p)
-                    # print("create branch in que", file=sys.stderr)
-                que.appendleft(p)
-            elif status == Status.SUCCESS:
-                return len(p.mirrors)
-        return -1
-
-    def _proceed(self, p):
-        while True:
-            p.location += p.direction
-
-            visited_key = (p.location, p.direction)
-            if visited_key in self.visited:
-                return Status.TERMINATE
-            self.visited.add(visited_key)
-
-            mark = self.hmap.get(p.location)
-            # print(mark, p, file=sys.stderr)
-            if mark is None or mark == "*":
-                # print("terminate", file=sys.stderr)
-                return Status.TERMINATE
-            elif mark == "!":
-                if p.location in p.mirrors:
-                    p.direction = reflect(p.direction, p.mirrors[p.location])
-                    return Status.TERMINATE     # FIXME
-                else:
-                    return Status.BRANCH
-            elif mark == "#" and p.location == self.target:
-                return Status.SUCCESS
+            q_count = len(que)
+            for _ in range(q_count):
+                p = que.popleft()
+                while True:
+                    p.location += p.direction
+                    mark = self.hmap.get(p.location)
+                    if mark is None or mark == "*":
+                        break
+                    elif mark == "!":
+                        if p.location in self.visited:
+                            break
+                        self.visited.add(p.location)
+                        for mirror in MIRRORS:
+                            que.append(p.copy(direction=reflect(p.direction, mirror)))
+                    elif mark == "#" and p.location == self.target:
+                        return mirror_count
+            mirror_count += 1
 
 
 def main():
