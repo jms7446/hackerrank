@@ -1,4 +1,4 @@
-from beakjoon.p14890_decline import main, is_valid_road
+from baekjoon.p14890_decline import main, is_valid_road
 from util.result_check import get_output_with_stdin
 
 import pytest

@@ -1,4 +1,4 @@
-from beakjoon.p1043_liar import main
+from baekjoon.p1043_liar import main
 from util.result_check import get_output_with_stdin
 
 

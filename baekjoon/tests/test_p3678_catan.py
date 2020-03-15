@@ -1,4 +1,4 @@
-from beakjoon.p3678_catan import katan, main
+from baekjoon.p3678_catan import katan, main
 from util import result_check
 
 

@@ -1,4 +1,4 @@
-from beakjoon.p9328_keys import main
+from baekjoon.p9328_keys import main
 from util.result_check import get_output_with_stdin
 
 

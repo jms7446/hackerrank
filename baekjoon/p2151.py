@@ -154,7 +154,7 @@ def test_main():
 def test_solver():
     import random
     import time
-    from beakjoon.p2151_short import solve
+    from baekjoon.p2151_short import solve
 
     def gen_map(n):
         def gen_tile():

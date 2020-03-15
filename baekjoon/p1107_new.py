@@ -181,7 +181,7 @@ def test_solve():
 
 
 def test_find_for_bug():
-    from beakjoon.p1107 import solve as comp_solve
+    from baekjoon.p1107 import solve as comp_solve
     import random
     for _ in range(1000):
         target = random.randint(0, 1000)
