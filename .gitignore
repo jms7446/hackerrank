@@ -2,3 +2,4 @@ venv
 profile*.txt
 *.lprof
 *.prof
+*.pyc
