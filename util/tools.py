@@ -15,6 +15,17 @@ def iter_pair_in_order(xs, ys):
                 yield x, y
 
 
+def combination(n, r):
+    if (n - r) < r:
+        r = n - r
+    numer = 1
+    denom = 1
+    for k in range(r):
+        numer *= (n - k)
+        denom *= (r - k)
+    return numer // denom
+
+
 ################################################################################
 # Tree
 ################################################################################
