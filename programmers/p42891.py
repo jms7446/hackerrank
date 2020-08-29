@@ -2,9 +2,9 @@ from operator import itemgetter
 
 
 def iter_gaps_with_indices(xs):
-    idx_with_xs = sorted(enumerate(xs), key=itemgetter(1))
+    idx_with_xs = sorted(enumerate(xs), key=itemgetter(1))          # ex) [(1, 1), (2, 2), (0, 3)]
     yield idx_with_xs[0]
-    for (_, pt), (idx, t) in zip(idx_with_xs, idx_with_xs[1:]):
+    for (_, pt), (idx, t) in zip(idx_with_xs, idx_with_xs[1:]):     # ex) [(1, 1), (2, 1), (0, 1)]
         yield idx, t - pt
 
 
@@ -21,8 +21,12 @@ def solution(food_times, k):
     else:
         return -1
     nth = remain_time % remain_food_count
-    return [idx for idx, remained in enumerate(remain_foods) if remained][nth] + 1
+    compact_indices = [idx for idx, remained in enumerate(remain_foods) if remained]
+    result = compact_indices[nth]
+    return result + 1     # convert to 1-start index
 
 
-def test_main():
+def test_solution():
     assert solution([3, 1, 2], 5) == 1
+    assert solution([1, 2, 3, 4], 8) == 4
+    assert solution([1, 1], 2) == -1
