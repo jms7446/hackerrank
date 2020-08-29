@@ -9,18 +9,21 @@ def solve(N, probs):
             return prob
 
         prob_sum = 0
-        for (dx, dy), d_prob in zip(directions, probs):
-            nx, ny = pos[0] + dx, pos[1] + dy
+        x, y = pos
+        for dx, dy, d_prob in dir_probs:
+            nx, ny = x + dx, y + dy
             if not visited[nx][ny]:
                 visited[nx][ny] = True
                 prob_sum += loop(n - 1, (nx, ny), prob * d_prob)
                 visited[nx][ny] = False
         return prob_sum
 
+    probs = [p / 100 for p in probs]
+    dir_probs = [(x, y, p) for (x, y), p in (zip(directions, probs))]
     S = 2 * N + 1
     visited = [[False] * S for _ in range(S)]
     visited[N][N] = True
-    return loop(N, (N, N), 1) / 100 ** N
+    return loop(N, (N, N), 1)
 
 
 def main():
