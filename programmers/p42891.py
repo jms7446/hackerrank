@@ -2,9 +2,14 @@ from operator import itemgetter
 
 
 def iter_gaps_with_indices(xs):
-    idx_with_xs = sorted(enumerate(xs), key=itemgetter(1))          # ex) [(1, 1), (2, 2), (0, 3)]
+    """
+
+    ex) input  : [3, 1, 2]
+        output : [(1, 1), (2, 1), (0, 1)]
+    """
+    idx_with_xs = sorted(enumerate(xs), key=itemgetter(1))   # ex) [(1, 1), (2, 2), (0, 3)]
     yield idx_with_xs[0]
-    for (_, pt), (idx, t) in zip(idx_with_xs, idx_with_xs[1:]):     # ex) [(1, 1), (2, 1), (0, 1)]
+    for (_, pt), (idx, t) in zip(idx_with_xs, idx_with_xs[1:]):
         yield idx, t - pt
 
 

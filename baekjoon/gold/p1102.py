@@ -18,6 +18,17 @@ def iter_by_active(state, n, cond=1):
         state //= 2
 
 
+def bipart_active_inactive(state, n):
+    active_list = []
+    inactive_list = []
+    for i in range(n):
+        if state % 2 == 1:
+            active_list.append(i)
+        else:
+            inactive_list.append(i)
+    return active_list, inactive_list
+
+
 def iter_active(state, n):
     return iter_by_active(state, n, cond=1)
 
@@ -26,7 +37,7 @@ def iter_inactive(state, n):
     return iter_by_active(state, n, cond=0)
 
 
-def solve(N, costs, raw_states, P):
+def solve(N, costs, raw_state, P):
     def loop(state, left):
         if left == 0:
             return 0
@@ -35,8 +46,9 @@ def solve(N, costs, raw_states, P):
             return memory[state]
 
         candidates = []
-        for src in iter_active(state, N):
-            for dst in iter_inactive(state, N):
+        active_list, inactive_list = bipart_active_inactive(state, N)
+        for src in active_list:
+            for dst in inactive_list:
                 next_state = state | (1 << dst)
                 candidate = costs[src][dst] + loop(next_state, left - 1)
                 candidates.append(candidate)
@@ -44,12 +56,13 @@ def solve(N, costs, raw_states, P):
         return memory[state]
 
     memory = [None] * (2 ** N)
-    active_count = calc_active_count(raw_states)
+
+    active_count = calc_active_count(raw_state)
     if active_count >= P:
         return 0
     elif active_count == 0:
         return -1
-    start_state = encode_state(raw_states)
+    start_state = encode_state(raw_state)
     return loop(start_state, P - active_count)
 
 
