@@ -25,7 +25,7 @@ if __name__ == "__main__":
     main()
 
 
-from util.result_check import get_output_with_stdin
+from util.result_check import get_output_with_stdin, check_elapse_time
 import pytest
 
 
@@ -70,15 +70,10 @@ def test_main4():
     out_str = """
 1
     """.strip()
-    assert get_output_with_stdin(main, in_str) == out_str
+    assert get_output_with_stdin(main, in_str, check_time=True) == out_str
 
 
-@pytest.mark.skip
 def test_time():
-    import time
-    s = '12345' * 1000
+    in_str = '12345' * 1000
     ptn = '123'
-    st = time.time()
-    for _ in range(1000):
-        solve(s, ptn)
-    print('elapse time: ', time.time() - st, file=sys.stderr)
+    check_elapse_time(solve, (in_str, ptn), num_iter=1000)
