@@ -5,6 +5,13 @@ BASE_MOVES = [(0, 1), (0, -1), (1, 0), (-1, 0)]
 HORSE_MOVES = [(1, 2), (-1, 2), (1, -2), (-1, -2), (2, 1), (2, -1), (-2, 1), (-2, -1)]
 
 
+def padding2(G, W, H, c):
+    v_pad = [c * (W + 4)] * 2
+    G = [c * 2 + line + c * 2 for line in G]
+    G = v_pad + G + v_pad
+    return G, W + 4, H + 4
+
+
 def solve(K, W, H, G):
     def take_moves(moves, cost):
         """side-effect(modify): found_end, visited, new_stack"""
@@ -15,8 +22,6 @@ def solve(K, W, H, G):
 
         for dx, dy in moves:
             x, y = px + dx, py + dy
-            if not (0 <= x < W and 0 <= y < H):
-                continue
             if visited[cost][y][x] or G[y][x] == '1':
                 continue
             if (x, y) == end:
@@ -25,7 +30,8 @@ def solve(K, W, H, G):
             visited[cost][y][x] = True
             new_stack.append((x, y, cost))
 
-    start, end = (0, 0), (W - 1, H - 1)
+    G, W, H = padding2(G, W, H, '1')
+    start, end = (2, 2), (W - 1 - 2, H - 1 - 2)
     if start == end:
         return 0
     visited = [[[False] * W for _ in range(H)] for _ in range(K + 1)]
