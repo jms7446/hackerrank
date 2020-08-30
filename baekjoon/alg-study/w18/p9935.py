@@ -1,35 +1,17 @@
 import sys
 
 
-def solve(S, P):
-    def remove_matched_and_get_next_index():
-        for _ in range(L):
-            stack.pop()
-        if stack:
-            return stack[-1][1]
-        else:
-            return 0
-
+def solve(in_str, ptn):
     stack = []
-    L = len(P)
-    idx = 0
-    for c in S:
-        if c == P[idx]:
-            idx += 1
-            stack.append((c, idx))
-            if idx == L:
-                idx = remove_matched_and_get_next_index()
-        else:
-            if c == P[0]:
-                idx = 1
-            else:
-                idx = 0
-            stack.append((c, idx))
+    ptn = list(ptn)
+    ptn_len = len(ptn)
+    last_char = ptn[-1]
+    for c in in_str:
+        stack.append(c)
+        if c == last_char and stack[-ptn_len:] == ptn:
+            del stack[-ptn_len:]
 
-    if stack:
-        return ''.join(x[0] for x in stack)
-    else:
-        return 'FRULA'
+    return ''.join(x[0] for x in stack) if stack else 'FRULA'
 
 
 def main():
@@ -41,7 +23,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
 
 from util.result_check import get_output_with_stdin
@@ -92,7 +73,7 @@ def test_main4():
     assert get_output_with_stdin(main, in_str) == out_str
 
 
-# @pytest.mark.skip
+@pytest.mark.skip
 def test_time():
     import time
     s = '12345' * 1000
