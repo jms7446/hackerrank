@@ -8,15 +8,15 @@ MAX_LOOP = 10 ** 8
 
 def to_time_str(sec):
     if sec >= 60:
-        return '{:.5f}m'.format(sec / 60)
+        return '{:.2f}m'.format(sec / 60)
     elif sec >= 1:
-        return '{:.5f}s'.format(sec)
+        return '{:.2f}s'.format(sec)
     elif sec >= 1e-3:
-        return '{:.5f}ms'.format(sec * 1e3)
+        return '{:.2f}ms'.format(sec * 1e3)
     elif sec >= 1e-6:
-        return '{:.5f}µs'.format(sec * 1e6)
+        return '{:.2f}µs'.format(sec * 1e6)
     else:
-        return '{:.5f}ns'.format(sec * 1e9)
+        return '{:.2f}ns'.format(sec * 1e9)
 
 
 def _print_avg_time(elapse_time, num_iter):
@@ -31,7 +31,7 @@ def check_elapse_time(func, args, expected=None, num_iter=1):
             assert func(*args) == expected
     else:
         for _ in range(num_iter):
-            assert func(*args)
+            func(*args)
     elapse_time = time.time() - st
     _print_avg_time(elapse_time, num_iter)
 

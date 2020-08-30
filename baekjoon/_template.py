@@ -29,3 +29,18 @@ def test_main():
 
     """.strip()
     assert get_output_with_stdin(main, in_str) == out_str
+
+
+import pytest
+
+
+@pytest.mark.parametrize(('in_str', 'out_str'), [
+    ('''
+    
+    '''.strip(),
+     '''
+     
+     '''.strip()),
+])
+def test_main(in_str, out_str):
+    assert get_output_with_stdin(main, in_str) == out_str
