@@ -2,6 +2,7 @@ from unittest.mock import patch
 from io import StringIO
 import time
 import sys
+import os
 
 MAX_LOOP = 10 ** 8
 
@@ -52,6 +53,32 @@ def get_output_with_stdin(func, inputs, num_iter=1, check_time=False):
     if check_time:
         _print_avg_time(elapse_time, num_iter)
     return mocked_out.getvalue().strip()
+
+
+def find_edge_case_by_external_program(binary_path, func, in_strs, binary_dir=None):
+    import subprocess
+    binary_dir = binary_dir or os.path.join(os.path.dirname(os.path.abspath(__file__)), '../ext_code')
+    binary_path = os.path.join(binary_dir, binary_path)
+    for in_str in in_strs:
+        try:
+            expected = subprocess.check_output(binary_path, input=in_str.encode()).decode().strip()
+        except Exception as ex:
+            expected = '<<<<<<<<<<< Error({}) >>>>>>>>>>>>>>>'.format(ex)
+        try:
+            actual = get_output_with_stdin(func, in_str).strip()
+        except Exception as ex:
+            actual = '<<<<<<<<<<< Error({}) >>>>>>>>>>>>>>>'.format(ex)
+
+        if expected != actual:
+            print('', file=sys.stderr)
+            print('=================== in_str   ==================', file=sys.stderr)
+            print(in_str, file=sys.stderr)
+            print('=================== expected ==================', file=sys.stderr)
+            print(expected, file=sys.stderr)
+            print('=================== actual   ==================', file=sys.stderr)
+            print(actual, file=sys.stderr)
+            print('===============================================', file=sys.stderr)
+            raise Exception("Match Failed")
 
 
 def iter_run(func, loop=1, time_limit=None, gen=None):

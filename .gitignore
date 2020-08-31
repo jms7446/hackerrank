@@ -3,3 +3,5 @@ profile*.txt
 *.lprof
 *.prof
 *.pyc
+
+ext_code
