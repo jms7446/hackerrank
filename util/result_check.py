@@ -24,14 +24,21 @@ def _print_avg_time(elapse_time, num_iter):
     print('\n==> avg time: {} in {} iterations'.format(to_time_str(avg_time), num_iter), file=sys.stderr, end='')
 
 
-def check_elapse_time(func, args, expected=None, num_iter=1):
-    st = time.time()
+def batch(func, arg_list, expected=None):
     if expected:
-        for _ in range(num_iter):
-            assert func(*args) == expected
+        for arg in arg_list:
+            assert func(*arg) == expected
     else:
-        for _ in range(num_iter):
-            func(*args)
+        for arg in arg_list:
+            func(*arg)
+
+
+def check_elapse_time(func, args=None, args_list=None, expected=None, num_iter=1):
+    if args_list is None:
+        args_list = [args]
+    st = time.time()
+    for _ in range(num_iter):
+        batch(func, args_list, expected)
     elapse_time = time.time() - st
     _print_avg_time(elapse_time, num_iter)
 
