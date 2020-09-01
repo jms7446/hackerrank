@@ -36,3 +36,24 @@ def test_solution():
     assert solution([3, 1, 2], 5) == 1
     assert solution([1, 2, 3, 4], 8) == 4
     assert solution([1, 1], 2) == -1
+
+
+import random
+from util import *
+
+
+def gen_prob_with_N(scale):
+    xs = [random.randint(1, 10 ** 8) for _ in range(scale)]
+    k = random.randint(1, int(sum(xs) * 1.1))
+    return xs, k
+
+
+def gen_prob_with_M(scale):
+    xs = [random.randint(1, scale) for _ in range(10 ** 6)]
+    k = random.randint(1, int(sum(xs) * 1.1))
+    return xs, k
+
+
+def test_time_by_N():
+    scales = [1000, 2000, 5000, 10000, 20000, 50000]
+    eprint(time_complexity(solution, gen_prob_with_N, scales, time_limit=0.1, num_iter=100))

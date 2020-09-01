@@ -29,12 +29,13 @@ def timeits(func, func_args_list, num_iter=1, io_mock=False):
     _print_elapse_time(elapse_times)
 
 
-def time_complexity(func: Callable, args_func: Callable, scales: Iterable, io_mock=False):
+def time_complexity(func: Callable, args_func: Callable, scales: Iterable, num_iter=10, time_limit=1, io_mock=False):
     elapse_times = []
     for scale in scales:
         args = args_func(scale)
-        elapse_time = _calc_elapse_times(func, args, io_mock=io_mock)[0]
-        elapse_times.append(elapse_time)
+        cur_elapse_times = _calc_elapse_times(func, args, num_iter=num_iter, time_limit=time_limit, io_mock=io_mock)
+        avg_time = sum(cur_elapse_times) / len(cur_elapse_times)
+        elapse_times.append(avg_time)
     return {'scale': scales, 'elapse_time': elapse_times}
 
 
@@ -91,14 +92,18 @@ def _evaluate(func, func_args, io_mock=False):
         return func(*func_args)
 
 
-def _calc_elapse_times(func, func_args, num_iter=1, io_mock=False) -> List[float]:
+def _calc_elapse_times(func, func_args, num_iter=1, time_limit=None, io_mock=False) -> List[float]:
     """execute func and return elapse times (and print out to stderr)"""
     elapse_times = []
+    total_time = 0
     for _ in range(num_iter):
         st = time.time()
         _evaluate(func, func_args, io_mock=io_mock)
         elapse_time = time.time() - st
         elapse_times.append(elapse_time)
+        total_time += elapse_time
+        if time_limit and total_time > time_limit:
+            break
     return elapse_times
 
 
