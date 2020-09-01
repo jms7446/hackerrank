@@ -55,7 +55,7 @@ if __name__ == "__main__":
     main()
 
 
-from util.result_check import check_elapse_time
+from util import *
 import pytest
 
 
@@ -64,7 +64,7 @@ def test_time():
     random.seed(2)
     T = 1000
     args_list = [(random.randint(1, 100), random.randint(1, 100)) for _ in range(T)]
-    check_elapse_time(solve, args_list=args_list, num_iter=100)
+    timeits(solve, args_list, num_iter=100)
 
 
 @pytest.mark.parametrize(('N', 'M', 'expected'), [

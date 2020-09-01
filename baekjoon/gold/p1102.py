@@ -26,6 +26,7 @@ def bipart_active_inactive(state, n):
             active_list.append(i)
         else:
             inactive_list.append(i)
+        state >>= 1
     return active_list, inactive_list
 
 
@@ -79,7 +80,7 @@ if __name__ == "__main__":
     main()
 
 
-from util.result_check import get_output_with_stdin
+from util import *
 
 
 def test_main():
@@ -91,4 +92,4 @@ def test_main():
 YNN
 3
 """.strip()
-    assert get_output_with_stdin(main, in_str) == "21"
+    assert evaluate_via_io(main, in_str) == "21"

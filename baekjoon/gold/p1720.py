@@ -94,3 +94,8 @@ import pytest
 ])
 def test_main(n, e):
     assert get_output_with_stdin(main, str(n)) == str(e)
+
+
+def test_time():
+    assert get_output_with_stdin(main, str(30), ) == str(357935787)
+

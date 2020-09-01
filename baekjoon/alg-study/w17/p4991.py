@@ -93,7 +93,7 @@ if __name__ == '__main__':
     main()
 
 
-from util.result_check import get_output_with_stdin
+from util import *
 
 
 def test_main():
@@ -140,7 +140,7 @@ xxxxx.....xxxxx
 49
 -1
     '''.strip()
-    assert get_output_with_stdin(main, in_str) == out_str
+    assert evaluate_via_io(main, in_str) == out_str
 
 
 def test_elapse_time():
@@ -175,6 +175,5 @@ xxxxx.....xxxxx
         '''.strip()
     st = time.time()
     for i in range(1000):
-        get_output_with_stdin(main, in_str)
+        evaluate_via_io(main, in_str)
     print(f'elapse time : {time.time() - st}', file=sys.stderr)
-    assert False

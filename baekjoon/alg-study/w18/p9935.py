@@ -25,8 +25,7 @@ if __name__ == "__main__":
     main()
 
 
-from util.result_check import get_output_with_stdin, check_elapse_time
-import pytest
+from util import *
 
 
 def test_main():
@@ -37,7 +36,7 @@ C4
     out_str = """
 mirkovniz
     """.strip()
-    assert get_output_with_stdin(main, in_str) == out_str
+    assert evaluate_via_io(main, in_str) == out_str
 
 
 def test_main2():
@@ -48,7 +47,7 @@ def test_main2():
     out_str = """
 FRULA
     """.strip()
-    assert get_output_with_stdin(main, in_str) == out_str
+    assert evaluate_via_io(main, in_str) == out_str
 
 
 def test_main3():
@@ -59,7 +58,7 @@ def test_main3():
     out_str = """
 FRULA
     """.strip()
-    assert get_output_with_stdin(main, in_str) == out_str
+    assert evaluate_via_io(main, in_str) == out_str
 
 
 def test_main4():
@@ -70,10 +69,8 @@ def test_main4():
     out_str = """
 1
     """.strip()
-    assert get_output_with_stdin(main, in_str, check_time=True) == out_str
+    assert evaluate_via_io(main, in_str) == out_str
 
 
 def test_time():
-    in_str = '12345' * 1000
-    ptn = '123'
-    check_elapse_time(solve, (in_str, ptn), num_iter=1000)
+    timeit(solve, ('12345' * 1000, '123'), num_iter=100)

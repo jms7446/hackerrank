@@ -37,8 +37,7 @@ if __name__ == "__main__":
 
 import pytest
 from random import randint
-from util.gen_sample import merge_to_lines, generate_probs, random_choices
-from util.result_check import get_output_with_stdin, find_edge_case_by_external_program
+from util import *
 
 
 @pytest.mark.parametrize(('in_str', 'out_str'), [
@@ -85,7 +84,7 @@ from util.result_check import get_output_with_stdin, find_edge_case_by_external_
     '''.strip(), '449'),
 ])
 def test_main(in_str, out_str):
-    assert get_output_with_stdin(main, in_str) == out_str
+    assert evaluate_via_io(main, in_str) == out_str
 
 
 def test_found_edge_case():
@@ -96,7 +95,7 @@ def test_found_edge_case():
 1 15
     '''.strip()
     out_str = '-1'
-    assert get_output_with_stdin(main, in_str) == out_str
+    assert evaluate_via_io(main, in_str) == out_str
 
 
 def gen_probs(LR=20, NR=20, XR=6, K=20):

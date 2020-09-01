@@ -38,11 +38,11 @@ if __name__ == "__main__":
     main()
 
 
-from util.result_check import get_output_with_stdin
+from util import *
 
 
 def test_main():
     in_str = """
 2 25 25 25 25
     """.strip()
-    assert get_output_with_stdin(main, in_str) == "0.75"
+    assert evaluate_via_io(main, in_str) == "0.75"

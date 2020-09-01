@@ -38,7 +38,7 @@ if __name__ == "__main__":
     main()
 
 
-from util.result_check import get_output_with_stdin
+from util import *
 
 
 def test_main():
@@ -46,18 +46,18 @@ def test_main():
 6 7 800
 622 411 201 555 755 82
 """.strip()
-    assert get_output_with_stdin(main, in_str) == "70"
+    assert evaluate_via_io(main, in_str) == "70"
 
 
 def test_main2():
     in_str = """
 0 1 800
 """.strip()
-    assert get_output_with_stdin(main, in_str) == "400"
+    assert evaluate_via_io(main, in_str) == "400"
 
 
 def test_main3():
     in_str = """
 0 0 800
 """.strip()
-    assert get_output_with_stdin(main, in_str) == "800"
+    assert evaluate_via_io(main, in_str) == "800"

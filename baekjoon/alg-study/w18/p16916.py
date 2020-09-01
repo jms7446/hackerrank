@@ -56,7 +56,7 @@ if __name__ == "__main__":
     main()
 
 
-from util.result_check import get_output_with_stdin, check_elapse_time
+from util import *
 import pytest
 
 
@@ -70,7 +70,7 @@ def test_time1():
     random.seed(2)
     in_str = ''.join(random.choice(string.ascii_lowercase) for _ in range(N))
     ptn = ''.join(random.choice(string.ascii_lowercase) for _ in range(P))
-    check_elapse_time(solve, (in_str, ptn), num_iter=10)
+    timeit(solve, (in_str, ptn), num_iter=2)
 
 
 # @pytest.mark.skip
@@ -83,7 +83,7 @@ def test_time2():
     random.seed(2)
     in_str = ''.join(random.choice(string.ascii_lowercase) for _ in range(N))
     ptn = ''.join(random.choice(string.ascii_lowercase) for _ in range(P))
-    check_elapse_time(solve, (in_str, ptn), num_iter=10)
+    timeit(solve, (in_str, ptn), num_iter=2)
 
 
 def test_kmp_table():
@@ -137,7 +137,7 @@ baekjoon
      '''.strip()),
 ])
 def test_main(in_str, out_str):
-    assert get_output_with_stdin(main, in_str) == out_str
+    assert evaluate_via_io(main, in_str) == out_str
 
 
 ################################################################################

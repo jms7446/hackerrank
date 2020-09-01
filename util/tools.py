@@ -1,3 +1,5 @@
+import sys
+
 # sys.setrecursionlimit(1000000)
 
 
@@ -24,6 +26,11 @@ def combination(n, r):
         numer *= (n - k)
         denom *= (r - k)
     return numer // denom
+
+
+def eprint(*args, **kwargs):
+    print(file=sys.stderr)
+    print(*args, **kwargs, end='', file=sys.stderr)
 
 
 ################################################################################

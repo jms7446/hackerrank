@@ -1,8 +1,7 @@
+from util.prob_generate import *
 
-from util.gen_sample import list_to_string, merge_to_lines
 
-
-def test_list_to_string():
+def test__list_to_string():
     assert list_to_string([1, 2, 3]) == '1 2 3'
     assert list_to_string([]) == ''
     assert list_to_string([1]) == '1'

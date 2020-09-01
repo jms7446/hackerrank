@@ -38,7 +38,7 @@ if __name__ == '__main__':
     main()
 
 
-from util.result_check import get_output_with_stdin
+from util import *
 import pytest
 
 
@@ -55,4 +55,4 @@ import pytest
      '0'),
 ])
 def test_main(in_str, out_str):
-    assert get_output_with_stdin(main, in_str) == out_str
+    assert evaluate_via_io(main, in_str) == out_str

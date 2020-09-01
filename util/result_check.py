@@ -1,13 +1,108 @@
 from unittest.mock import patch
 from io import StringIO
 import time
-import sys
 import os
+import subprocess
+from typing import List, Callable, Iterable
+
+from util.tools import eprint
 
 MAX_LOOP = 10 ** 8
+BINARY_DIR_BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../ext_code')
 
 
-def to_time_str(sec):
+def evaluate_via_io(func, in_str):
+    return _evaluate(func, in_str, io_mock=True)
+
+
+def timeit(func, func_args, num_iter=1, io_mock=False):
+    """execute func num_iter times and print elapse time info to stderr"""
+    elapse_times = _calc_elapse_times(func, func_args, num_iter=num_iter, io_mock=io_mock)
+    _print_elapse_time(elapse_times)
+
+
+def timeits(func, func_args_list, num_iter=1, io_mock=False):
+    """execute func for func_args_list and print elapse time info to stderr"""
+    elapse_times = []
+    for func_args in func_args_list:
+        elapse_times.extend(_calc_elapse_times(func, func_args, num_iter=num_iter, io_mock=io_mock))
+    _print_elapse_time(elapse_times)
+
+
+def time_complexity(func: Callable, args_func: Callable, scales: Iterable, io_mock=False):
+    elapse_times = []
+    for scale in scales:
+        args = args_func(scale)
+        elapse_time = _calc_elapse_times(func, args, io_mock=io_mock)[0]
+        elapse_times.append(elapse_time)
+    return {'scale': scales, 'elapse_time': elapse_times}
+
+
+def compare_func_result(func1, func2, args, silence=False):
+    try:
+        res1 = _evaluate(func1, args)
+    except Exception as ex:
+        res1 = '<<<<<<<<<<< Error1({}) >>>>>>>>>>>>>>>'.format(ex)
+    try:
+        res2 = _evaluate(func2, args)
+    except Exception as ex:
+        res2 = '<<<<<<<<<<< Error2({}) >>>>>>>>>>>>>>>'.format(ex)
+
+    if res1 != res2:
+        if not silence:
+            lines = [
+                '=================== in_str   ==================',
+                args,
+                '=================== expected ==================',
+                res1,
+                '=================== actual   ==================',
+                res2,
+                '===============================================',
+            ]
+            eprint('\n'.join(lines))
+        raise Exception("Match Failed")
+
+
+def compare_func_results(func1, func2, args_iter, silence=False):
+    for args in args_iter:
+        compare_func_result(func1, func2, args, silence=silence)
+
+
+def ext_binary_to_func(binary_path, binary_dir=BINARY_DIR_BASE) -> Callable:
+    def func(in_str):
+        res = subprocess.check_output(binary_path, input=in_str.encode())
+        return res.decode().strip()
+
+    binary_path = os.path.join(binary_dir, binary_path)
+    return func
+
+
+################################################################################
+################################################################################
+
+def _evaluate(func, func_args, io_mock=False):
+    """evaluate func with func_args, to use io_mock easily"""
+    if io_mock:
+        in_str = func_args if isinstance(func_args, str) else func_args[0]
+        with patch("sys.stdin", StringIO(in_str)), patch("sys.stdout", new_callable=StringIO) as mocked_out:
+            func()
+        return mocked_out.getvalue().strip()
+    else:
+        return func(*func_args)
+
+
+def _calc_elapse_times(func, func_args, num_iter=1, io_mock=False) -> List[float]:
+    """execute func and return elapse times (and print out to stderr)"""
+    elapse_times = []
+    for _ in range(num_iter):
+        st = time.time()
+        _evaluate(func, func_args, io_mock=io_mock)
+        elapse_time = time.time() - st
+        elapse_times.append(elapse_time)
+    return elapse_times
+
+
+def _to_time_str(sec):
     if sec >= 60:
         return '{:.2f}m'.format(sec / 60)
     elif sec >= 1:
@@ -20,83 +115,6 @@ def to_time_str(sec):
         return '{:.2f}ns'.format(sec * 1e9)
 
 
-def _print_avg_time(elapse_time, num_iter):
-    avg_time = elapse_time / num_iter
-    print('\n==> avg time: {} in {} iterations'.format(to_time_str(avg_time), num_iter), file=sys.stderr, end='')
-
-
-def batch(func, arg_list, expected=None):
-    if expected:
-        for arg in arg_list:
-            assert func(*arg) == expected
-    else:
-        for arg in arg_list:
-            func(*arg)
-
-
-def check_elapse_time(func, args=None, args_list=None, expected=None, num_iter=1):
-    if args_list is None:
-        args_list = [args]
-    st = time.time()
-    for _ in range(num_iter):
-        batch(func, args_list, expected)
-    elapse_time = time.time() - st
-    _print_avg_time(elapse_time, num_iter)
-
-
-def get_output_with_stdin(func, inputs, num_iter=1, check_time=False):
-    st = time.time()
-    for _ in range(num_iter):
-        with patch("sys.stdin", StringIO(inputs)), patch("sys.stdout", new_callable=StringIO) as mocked_out:
-            func()
-    elapse_time = time.time() - st
-    if check_time:
-        _print_avg_time(elapse_time, num_iter)
-    return mocked_out.getvalue().strip()
-
-
-def find_edge_case_by_external_program(binary_path, func, in_strs, binary_dir=None):
-    import subprocess
-    binary_dir = binary_dir or os.path.join(os.path.dirname(os.path.abspath(__file__)), '../ext_code')
-    binary_path = os.path.join(binary_dir, binary_path)
-    for in_str in in_strs:
-        try:
-            expected = subprocess.check_output(binary_path, input=in_str.encode()).decode().strip()
-        except Exception as ex:
-            expected = '<<<<<<<<<<< Error({}) >>>>>>>>>>>>>>>'.format(ex)
-        try:
-            actual = get_output_with_stdin(func, in_str).strip()
-        except Exception as ex:
-            actual = '<<<<<<<<<<< Error({}) >>>>>>>>>>>>>>>'.format(ex)
-
-        if expected != actual:
-            print('', file=sys.stderr)
-            print('=================== in_str   ==================', file=sys.stderr)
-            print(in_str, file=sys.stderr)
-            print('=================== expected ==================', file=sys.stderr)
-            print(expected, file=sys.stderr)
-            print('=================== actual   ==================', file=sys.stderr)
-            print(actual, file=sys.stderr)
-            print('===============================================', file=sys.stderr)
-            raise Exception("Match Failed")
-
-
-def iter_run(func, loop=1, time_limit=None, gen=None):
-    if time_limit is not None:
-        loop = MAX_LOOP
-
-    st = time.time()
-    for _ in range(loop):
-        if time_limit and time.time() - st >= time_limit:
-            break
-        if gen is not None:
-            func(*gen())
-        else:
-            func()
-    elapse_time = time.time() - st
-    print(f"elapse time: {elapse_time}", file=sys.stderr)
-
-
-def eprint(*args, **kwargs):
-    print(file=sys.stderr)
-    print(*args, **kwargs, end='', file=sys.stderr)
+def _print_elapse_time(elapse_times):
+    avg_time = sum(elapse_times) / len(elapse_times)
+    eprint('\n==> avg time: {} in {} iterations'.format(_to_time_str(avg_time), len(elapse_times)))

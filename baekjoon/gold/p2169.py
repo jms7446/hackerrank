@@ -35,7 +35,7 @@ if __name__ == "__main__":
     main()
 
 
-from util.result_check import get_output_with_stdin
+from util import *
 
 
 def test_main():
@@ -47,7 +47,7 @@ def test_main():
 -16 -22 -57 -33 99
 7 -76 -11 77 15
 """.strip()
-    assert get_output_with_stdin(main, in_str) == "319"
+    assert evaluate_via_io(main, in_str) == "319"
 
 
 def test_main2():
@@ -55,7 +55,7 @@ def test_main2():
 1 1
 3
 """.strip()
-    assert get_output_with_stdin(main, in_str) == "3"
+    assert evaluate_via_io(main, in_str) == "3"
 
 
 def test_main3():
@@ -63,7 +63,7 @@ def test_main3():
 1 3
 3 1 0
 """.strip()
-    assert get_output_with_stdin(main, in_str) == "4"
+    assert evaluate_via_io(main, in_str) == "4"
 
 
 def test_main4():
@@ -73,7 +73,7 @@ def test_main4():
 -1
 -5
 """.strip()
-    assert get_output_with_stdin(main, in_str) == "-5"
+    assert evaluate_via_io(main, in_str) == "-5"
 
 
 def test_main5():
@@ -82,4 +82,4 @@ def test_main5():
 -1 -2 -3
 -10 -10 0 
 """.strip()
-    assert get_output_with_stdin(main, in_str) == "-6"
+    assert evaluate_via_io(main, in_str) == "-6"

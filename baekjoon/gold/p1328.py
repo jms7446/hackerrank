@@ -105,7 +105,7 @@ if __name__ == "__main__":
     main()
 
 
-from util.result_check import get_output_with_stdin
+from util import *
 import pytest
 
 import random
@@ -124,7 +124,6 @@ def test_profile():
         solve(N, L, R)
         cache = {}
     print('elapse time : ', time.time() - st, file=sys.stderr)
-
 
 
 @pytest.mark.parametrize(('in_str', 'out_str'), [
@@ -146,6 +145,6 @@ def test_profile():
      '60'),
 ])
 def test_main(in_str, out_str):
-    assert get_output_with_stdin(main, in_str) == out_str
+    assert evaluate_via_io(main, in_str) == out_str
 
 

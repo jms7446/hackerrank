@@ -67,7 +67,7 @@ if __name__ == "__main__":
     main()
 
 
-from util.result_check import get_output_with_stdin
+from util import *
 
 
 def test_main():
@@ -82,7 +82,7 @@ def test_main():
     out_str = """
 4
     """.strip()
-    assert get_output_with_stdin(main, in_str) == out_str
+    assert evaluate_via_io(main, in_str) == out_str
 
 
 def test_main_impossible():
@@ -97,7 +97,7 @@ def test_main_impossible():
     out_str = """
 -1
     """.strip()
-    assert get_output_with_stdin(main, in_str) == out_str
+    assert evaluate_via_io(main, in_str) == out_str
 
 
 def test_main_possible():
@@ -112,7 +112,7 @@ def test_main_possible():
     out_str = """
 4
     """.strip()
-    assert get_output_with_stdin(main, in_str) == out_str
+    assert evaluate_via_io(main, in_str) == out_str
 
 
 def test_main_trivial():
@@ -124,4 +124,4 @@ def test_main_trivial():
     out_str = """
 0
     """.strip()
-    assert get_output_with_stdin(main, in_str) == out_str
+    assert evaluate_via_io(main, in_str) == out_str
