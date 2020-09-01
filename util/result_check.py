@@ -95,3 +95,8 @@ def iter_run(func, loop=1, time_limit=None, gen=None):
             func()
     elapse_time = time.time() - st
     print(f"elapse time: {elapse_time}", file=sys.stderr)
+
+
+def eprint(*args, **kwargs):
+    print(file=sys.stderr)
+    print(*args, **kwargs, end='', file=sys.stderr)
