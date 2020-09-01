@@ -29,7 +29,7 @@ def calc_symmetry_counts(state):
 
 
 # test_time1: 307.63µs
-def solve(N):
+def solve_old2(N):
     def calc_counts(state):
         if state == () or state == (1, ):
             return 1
@@ -47,6 +47,26 @@ def solve(N):
         state = encode_state(counts)
         total_counts += calc_counts(state)
     return total_counts
+
+
+# test_time1: 6.80µs
+def solve(N):
+    if N == 1:
+        return 1
+    elif N == 2:
+        return 3
+
+    dp = [0] * 31
+    dp[1], dp[2] = 1, 3
+    for i in range(3, N + 1):
+        dp[i] = dp[i-1] + 2 * dp[i-2]
+
+    # count symmery cases
+    if N % 2 == 1:
+        symmetry_cases = dp[N//2]
+    else:
+        symmetry_cases = 2 * dp[N//2 - 1] + dp[N//2]
+    return (dp[N] + symmetry_cases) // 2
 
 
 def main():
