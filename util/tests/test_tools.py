@@ -1,5 +1,5 @@
 
-from ..tools import Tree, combination
+from util.tools import *
 
 
 def test_Tree_iter_preorder():
@@ -11,8 +11,13 @@ def test_Tree_iter_preorder():
 
 
 def test_combination():
-    assert combination(6, 2) == 15
-    assert combination(6, 4) == 15
-    assert combination(1, 1) == 1
-    assert combination(1, 0) == 1
+    assert nCr(6, 2) == 15
+    assert nCr(6, 4) == 15
+    assert nCr(1, 1) == 1
+    assert nCr(1, 0) == 1
 
+
+def test_permutation_with_dup():
+    assert permutations_with_dup((4, )) == 1
+    assert permutations_with_dup((1, 1, 1, 1)) == 24
+    assert permutations_with_dup((3, 1)) == 4

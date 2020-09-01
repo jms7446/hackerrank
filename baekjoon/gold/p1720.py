@@ -1,71 +1,52 @@
 import sys
-from functools import reduce
+from functools import reduce, lru_cache
 from operator import mul
+from math import factorial
 
 
-def factorial(n):
-    ret = 1
-    for i in range(2, n + 1):
-        ret *= i
-    return ret
+@lru_cache(10000)
+def permutations_with_dup(counts):
+    return factorial(sum(counts)) // reduce(mul, (factorial(i) for i in counts if i >= 2), 1)
 
 
+def iter_valid_cases(N):
+    for t2 in range(N // 2 + 1):
+        for s2 in range((N - t2 * 2) // 2 + 1):
+            s1 = N - 2 * (t2 + s2)
+            yield t2, s2, s1
+
+
+def encode_state(counts):
+    return tuple(sorted([c for c in counts if c > 0], reverse=True))
+
+
+def calc_symmetry_counts(state):
+    odds_count = len([d for d in state if d % 2 == 1])
+    if odds_count <= 1:
+        state = tuple(x // 2 for x in state)
+        return permutations_with_dup(state)
+    return 0
+
+
+# test_time1: 307.63µs
 def solve(N):
-    def b(state):
-        if state == (0, 0, 1) or state == (0, 0, 0):
+    def calc_counts(state):
+        if state == () or state == (1, ):
             return 1
-        if state in bmemory:
-            return bmemory[state]
+        elif state in memory:
+            return memory[state]
 
-        numer = factorial(sum(state))
-        denom = reduce(mul, (factorial(i) for i in state if i >= 2), 1)
-        all_cases = numer // denom
-        bmemory[state] = all_cases
-        return all_cases
-
-    def f(state):
-        all_cases = b(state)
-        odds_indices = [i for i, d in enumerate(state) if d % 2 == 1]
-        if len(odds_indices) == 0:
-            new_state = tuple(x // 2 for x in state)
-            symmetric_cases = b(new_state)
-        elif len(odds_indices) == 1:
-            new_state = list(state)
-            new_state[odds_indices[0]] -= 1
-            new_state = tuple(x // 2 for x in new_state)
-            symmetric_cases = b(new_state)
-        else:
-            symmetric_cases = 0
-
-        memory[state] = (all_cases + symmetric_cases) // 2
+        all_counts = permutations_with_dup(state)
+        symmetric_counts = calc_symmetry_counts(state)
+        memory[state] = (all_counts + symmetric_counts) // 2
         return memory[state]
 
-    bmemory = {}
     memory = {}
-    stack = []
-    remain = N
-    total_count = 0
-    for tt in range(remain // 2 + 1):
-        stack.append(tt)
-        remain -= 2 * tt
-        for ss in range(remain // 2 + 1):
-            stack.append(ss)
-            remain -= 2 * ss
-
-            s = remain
-            stack.append(s)
-
-            state = tuple(sorted(stack))
-            total_count += f(state)
-            stack.pop()
-
-            stack.pop()
-            remain += 2 * ss
-
-        remain += 2 * tt
-        stack.pop()
-
-    return total_count
+    total_counts = 0
+    for counts in iter_valid_cases(N):
+        state = encode_state(counts)
+        total_counts += calc_counts(state)
+    return total_counts
 
 
 def main():
@@ -77,7 +58,7 @@ def main():
 if __name__ == "__main__":
     main()
 
-from util.result_check import get_output_with_stdin, eprint
+from util import *
 import pytest
 
 
@@ -93,9 +74,8 @@ import pytest
     (30, 357935787),
 ])
 def test_main(n, e):
-    assert get_output_with_stdin(main, str(n)) == str(e)
+    assert evaluate_via_io(main, str(n)) == str(e)
 
 
-def test_time():
-    assert get_output_with_stdin(main, str(30), ) == str(357935787)
-
+def test_time1():
+    timeit(solve, (30, ), num_iter=10000, time_limit=0.5)

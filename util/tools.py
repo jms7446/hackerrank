@@ -1,4 +1,8 @@
 import sys
+import math
+from operator import mul
+from functools import reduce
+from functools import lru_cache
 
 # sys.setrecursionlimit(1000000)
 
@@ -17,7 +21,8 @@ def iter_pair_in_order(xs, ys):
                 yield x, y
 
 
-def combination(n, r):
+@lru_cache(10000)
+def nCr(n, r):
     if (n - r) < r:
         r = n - r
     numer = 1
@@ -26,6 +31,11 @@ def combination(n, r):
         numer *= (n - k)
         denom *= (r - k)
     return numer // denom
+
+
+@lru_cache(10000)
+def permutations_with_dup(counts):
+    return math.factorial(sum(counts)) // reduce(mul, (math.factorial(i) for i in counts if i >= 2), 1)
 
 
 def eprint(*args, **kwargs):
