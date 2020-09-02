@@ -1,26 +1,24 @@
 import sys
-from collections import Counter
 
 
-def solve(_, H, xs):
+def solve(N, H, xs):
+    obs = [0] * H
+    for b in xs[::2]:
+        obs[b] -= 1
+    for t in xs[1::2]:
+        obs[H - t] += 1
 
-    bs = Counter(b - 1 for b in xs[::2])
-    ts = Counter(H-t for t in xs[1::2])
-
-    acc_bs = [0] * H
-    acc_bs[H - 1] = bs[H - 1]
-    for h in reversed(range(H - 1)):
-        acc_bs[h] = bs[h] + acc_bs[h + 1]
-
-    acc_ts = [0] * H
-    acc_ts[0] = ts[0]
-    for h in range(1, H):
-        acc_ts[h] = ts[h] + acc_ts[h - 1]
-
-    counts = [b + t for b, t in zip(acc_bs[:H], acc_ts[:H])]
-    max_value = min(counts)
-    max_count = counts.count(max_value)
-    return max_value, max_count
+    bump = N // 2
+    min_value = bump
+    min_count = 0
+    for h in range(H):
+        bump += obs[h]
+        if bump < min_value:
+            min_value = bump
+            min_count = 1
+        elif bump == min_value:
+            min_count += 1
+    return min_value, min_count
 
 
 def main():
