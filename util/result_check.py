@@ -136,7 +136,7 @@ def _evaluate(func, func_args, io_mock=False):
 def _calc_elapse_times(func, func_args, num_iter=1, time_limit=None) -> List[float]:
     """execute func and return elapse times (and print out to stderr)"""
     elapse_times = []
-    if isinstance(func_args, str):
+    if isinstance(func_args, str) or not isinstance(func_args, Iterable):
         func_args = (func_args, )
     total_time = 0
     for _ in range(num_iter):
