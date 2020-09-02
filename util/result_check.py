@@ -1,3 +1,4 @@
+import sys
 from unittest.mock import patch
 from io import StringIO
 import time
@@ -6,6 +7,7 @@ import subprocess
 from typing import List, Callable, Iterable
 
 from deprecation import deprecated
+from line_profiler import LineProfiler
 
 from util.tools import eprint
 from util.prob_generate import list_to_string
@@ -17,6 +19,26 @@ BINARY_DIR_BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../e
 @deprecated('Use io_mock instead')
 def evaluate_via_io(func, in_str):
     return _evaluate(func, in_str, io_mock=True)
+
+
+def lprun(func, args, funcs=None):
+    funcs = funcs or []
+    if isinstance(args, str) or not isinstance(args, Iterable):
+        args = (args, )
+
+    lp = LineProfiler()
+    for f in funcs:
+        lp.add_function(f)
+    lp_wrapper = lp(func)
+
+    lp_wrapper(*args)
+    eprint()
+    lp.print_stats(stream=sys.stderr)
+
+
+def timeit_lp(func, func_args, funcs=None, num_iter=100, time_limit=0.1):
+    timeit(func, func_args, num_iter=num_iter, time_limit=time_limit)
+    lprun(func, func_args, funcs=funcs)
 
 
 def timeit(func, func_args, num_iter=100, time_limit=0.1):
@@ -83,7 +105,12 @@ def ext_binary_to_func(binary_path, binary_dir=BINARY_DIR_BASE) -> Callable:
     return func
 
 
+@deprecated(details='use mock_io')
 def io_mock(func):
+    return mock_io(func)
+
+
+def mock_io(func):
     def mocked_func(stdin_str):
         with patch("sys.stdin", StringIO(stdin_str)), patch("sys.stdout", new_callable=StringIO) as mocked_out:
             func()
@@ -109,6 +136,8 @@ def _evaluate(func, func_args, io_mock=False):
 def _calc_elapse_times(func, func_args, num_iter=1, time_limit=None) -> List[float]:
     """execute func and return elapse times (and print out to stderr)"""
     elapse_times = []
+    if isinstance(func_args, str):
+        func_args = (func_args, )
     total_time = 0
     for _ in range(num_iter):
         st = time.time()
