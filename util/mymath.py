@@ -26,3 +26,18 @@ def ncr(n, r):
     numer = reduce(op.mul, range(n, n-r, -1), 1)
     denom = reduce(op.mul, range(1, r+1), 1)
     return numer // denom
+
+
+def iter_primes(max_value, begin=None):
+    is_primes = [True] * (max_value + 1)
+    is_primes[0] = is_primes[1] = False
+    for i in range(2, (max_value + 1) // 2):
+        if is_primes[i]:
+            j = 2 * i
+            while j <= max_value:
+                is_primes[j] = False
+                j += i
+    if begin is None:
+        return (i for i, is_prime in enumerate(is_primes) if is_prime)
+    else:
+        return (i for i, is_prime in enumerate(is_primes) if is_prime and i >= begin)
