@@ -26,7 +26,12 @@ def generate_probs(func, args=None, count=1, random_state=None):
         random.seed(random_state)
 
     for _ in range(count):
-        yield func(*args)
+        prob = func(*args)
+        # In case of generated input string for stdin, it may be a string type.
+        # Strictly it is not correct type, but for convenience we convert this to a tuple.
+        if isinstance(prob, str):
+            prob = (prob, )
+        yield prob
 
 
 def merge_to_lines(args):
