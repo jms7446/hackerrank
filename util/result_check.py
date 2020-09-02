@@ -21,11 +21,12 @@ def timeit(func, func_args, num_iter=100, time_limit=0.1, io_mock=False):
     _print_elapse_time(elapse_times)
 
 
-def timeits(func, func_args_list, num_iter=100, time_limit=0.1, io_mock=False):
+def timeits(func, func_args_list, num_iter=100, time_limit_per_args=0.1, io_mock=False):
     """execute func for func_args_list and print elapse time info to stderr"""
     elapse_times = []
     for func_args in func_args_list:
-        e_times = _calc_elapse_times(func, func_args, num_iter=num_iter, time_limit=time_limit, io_mock=io_mock)
+        e_times = _calc_elapse_times(func, func_args, num_iter=num_iter, time_limit=time_limit_per_args,
+                                     io_mock=io_mock)
         elapse_times.extend(e_times)
     _print_elapse_time(elapse_times)
 
