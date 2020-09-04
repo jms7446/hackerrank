@@ -30,7 +30,7 @@ def logging_profile_info(msg_list, log_file_name):
 
 
 def timeit_lp(func, func_args, funcs=None, num_iter=100, time_limit=0.1, log=False,
-              silence=False, log_file_name=None):
+              silence=False, log_file_name=None, changed='', omit_func_args=False):
     """execute timeit and line profiling
 
     :param func:
@@ -41,13 +41,16 @@ def timeit_lp(func, func_args, funcs=None, num_iter=100, time_limit=0.1, log=Fal
     :param silence: Dot not display stats by stderr
     :param log: additionally logging stats into log_file
     :param log_file_name: if log_file_name is not given, default value is caller's `filename.lprof`
+    :param changed:
+    :param omit_func_args:
     """
     timeit_msg = timeit(func, func_args, num_iter=num_iter, time_limit=time_limit, return_msg=True, silence=silence)
     lp_msg = lprun(func, func_args, funcs=funcs, return_msg=True, silence=silence)
     if log:
         log_file_name = log_file_name or get_caller_filename() + '.lprof'
         logging_profile_info([
-            ('args', repr(func_args)),
+            ('changed', changed),
+            ('args', repr(func_args) if not omit_func_args else ''),
             ('timeit', timeit_msg),
             ('line_profiler', lp_msg),
         ], log_file_name)
@@ -209,10 +212,5 @@ def _to_time_str(sec):
 
 def make_elapse_time_msg(elapse_times):
     avg_time = sum(elapse_times) / len(elapse_times)
-    msg = '==> avg time: {} in {} iterations'.format(_to_time_str(avg_time), len(elapse_times))
+    msg = '==> avg_time: {} in {} iterations'.format(_to_time_str(avg_time), len(elapse_times))
     return msg
-
-
-def _print_elapse_time(elapse_times):
-    avg_time = sum(elapse_times) / len(elapse_times)
-    eprint('==> avg time: {} in {} iterations'.format(_to_time_str(avg_time), len(elapse_times)))
