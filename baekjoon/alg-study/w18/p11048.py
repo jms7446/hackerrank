@@ -58,4 +58,4 @@ import pytest
      '''.strip()),
 ])
 def test_main(in_str, out_str):
-    assert evaluate_via_io(main, in_str) == out_str
+    assert mock_io(main)(in_str) == out_str

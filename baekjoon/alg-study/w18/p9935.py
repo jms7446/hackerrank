@@ -36,7 +36,7 @@ C4
     out_str = """
 mirkovniz
     """.strip()
-    assert evaluate_via_io(main, in_str) == out_str
+    assert mock_io(main)(in_str) == out_str
 
 
 def test_main2():
@@ -47,7 +47,7 @@ def test_main2():
     out_str = """
 FRULA
     """.strip()
-    assert evaluate_via_io(main, in_str) == out_str
+    assert mock_io(main)(in_str) == out_str
 
 
 def test_main3():
@@ -58,7 +58,7 @@ def test_main3():
     out_str = """
 FRULA
     """.strip()
-    assert evaluate_via_io(main, in_str) == out_str
+    assert mock_io(main)(in_str) == out_str
 
 
 def test_main4():
@@ -69,8 +69,8 @@ def test_main4():
     out_str = """
 1
     """.strip()
-    assert evaluate_via_io(main, in_str) == out_str
+    assert mock_io(main)(in_str) == out_str
 
 
 def test_time():
-    timeit(solve, ('12345' * 1000, '123'), num_iter=100)
+    timeit_lp(solve, ('12345' * 1000, '123'), num_iter=100, funcs=[solve], log=True)

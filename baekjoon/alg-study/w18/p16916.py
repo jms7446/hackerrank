@@ -60,30 +60,28 @@ from util import *
 import pytest
 
 
-# @pytest.mark.skip
 def test_time1():
     import random
     import string
 
-    N = 1000000
-    P = 10000
+    N = 100000
+    P = 1000
     random.seed(2)
     in_str = ''.join(random.choice(string.ascii_lowercase) for _ in range(N))
     ptn = ''.join(random.choice(string.ascii_lowercase) for _ in range(P))
-    timeit(solve, (in_str, ptn), num_iter=2)
+    timeit_lp(solve, (in_str, ptn), num_iter=2, funcs=[KMP.make_partial_match_table, KMP.search], log=False)
 
 
-# @pytest.mark.skip
 def test_time2():
     import random
     import string
 
-    N = 1000000
+    N = 100000
     P = 100
     random.seed(2)
     in_str = ''.join(random.choice(string.ascii_lowercase) for _ in range(N))
     ptn = ''.join(random.choice(string.ascii_lowercase) for _ in range(P))
-    timeit(solve, (in_str, ptn), num_iter=2)
+    timeit_lp(solve, (in_str, ptn), num_iter=2, funcs=[KMP.make_partial_match_table, KMP.search], log=False)
 
 
 def test_kmp_table():
@@ -137,7 +135,7 @@ baekjoon
      '''.strip()),
 ])
 def test_main(in_str, out_str):
-    assert evaluate_via_io(main, in_str) == out_str
+    assert mock_io(main)(in_str) == out_str
 
 
 ################################################################################

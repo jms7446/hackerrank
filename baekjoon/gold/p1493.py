@@ -111,5 +111,5 @@ def gen_probs(LR=20, NR=20, XR=6, K=20):
 
 @pytest.mark.skip
 def test_compare():
-    input_generator = generate_probs(gen_probs, count=10000)
-    find_edge_case_by_external_program('p1493', main, input_generator)
+    input_generator = generate_probs(gen_probs, count=100)
+    compare_func_results(ext_binary_to_func('p1493'), mock_io(main), input_generator)

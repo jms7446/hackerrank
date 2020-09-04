@@ -45,14 +45,6 @@ if __name__ == "__main__":
 from util import *
 
 
-def test_time():
-    import random
-    random.seed(2)
-    K = 100
-    args_iter = ((K, [random.randint(1, 10000) for _ in range(K)]) for _ in range(5))
-    timeits(solve, args_iter, num_iter=10, time_limit_per_args=0.1)
-
-
 def test_make_sums():
     xs = [1, 2, 3]
     sums = make_sums(xs)
@@ -72,7 +64,7 @@ def test_main():
 300
 864
     """.strip()
-    assert evaluate_via_io(main, in_str) == out_str
+    assert mock_io(main)(in_str) == out_str
 
 
 def test_main1():
@@ -84,7 +76,7 @@ def test_main1():
     out_str = """
 300
     """.strip()
-    assert evaluate_via_io(main, in_str) == out_str
+    assert mock_io(main)(in_str) == out_str
 
 
 # sys.setrecursionlimit(1000000)
@@ -103,3 +95,11 @@ def solve_recursion_version(K, chapters):
     memory = [[None] * (K + 1) for _ in range(K)]
     res = f(0, K)
     return res
+
+
+def test_time():
+    import random
+    random.seed(2)
+    K = 100
+    args_iter = ((K, [random.randint(1, 10000) for _ in range(K)]) for _ in range(5))
+    timeits(solve, args_iter, num_iter=10, time_limit_per_args=0.1)

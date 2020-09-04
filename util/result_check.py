@@ -2,6 +2,7 @@ import sys
 from unittest.mock import patch
 from io import StringIO
 import time
+import datetime
 import os
 import subprocess
 from typing import List, Callable, Iterable
@@ -9,19 +10,50 @@ from typing import List, Callable, Iterable
 from deprecation import deprecated
 from line_profiler import LineProfiler
 
-from util.tools import eprint
+from util.tools import eprint, get_caller_filename
 from util.prob_generate import list_to_string
 
 MAX_LOOP = 10 ** 8
 BINARY_DIR_BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../ext_code')
 
 
-@deprecated('Use io_mock instead')
-def evaluate_via_io(func, in_str):
-    return _evaluate(func, in_str, io_mock=True)
+def logging_profile_info(msg_list, log_file_name):
+    out_lines = '\n' + '#' * 120 + '\n'
+    in_lines = '\n' + '-' * 120 + '\n'
+
+    cur_time_str = str(datetime.datetime.now())
+    core_msg = in_lines.join([f'{name}: \n{msg}' for name, msg in msg_list])
+    total_msg = out_lines.join(['', cur_time_str, core_msg, ''])
+    with open(log_file_name, 'a') as f:
+        f.write(total_msg)
+        eprint(f'Profile is saved in {log_file_name} (appended)')
 
 
-def lprun(func, args, funcs=None):
+def timeit_lp(func, func_args, funcs=None, num_iter=100, time_limit=0.1, log=False,
+              silence=False, log_file_name=None):
+    """execute timeit and line profiling
+
+    :param func:
+    :param func_args:
+    :param funcs:
+    :param num_iter:
+    :param time_limit:
+    :param silence: Dot not display stats by stderr
+    :param log: additionally logging stats into log_file
+    :param log_file_name: if log_file_name is not given, default value is caller's `filename.lprof`
+    """
+    timeit_msg = timeit(func, func_args, num_iter=num_iter, time_limit=time_limit, return_msg=True, silence=silence)
+    lp_msg = lprun(func, func_args, funcs=funcs, return_msg=True, silence=silence)
+    if log:
+        log_file_name = log_file_name or get_caller_filename() + '.lprof'
+        logging_profile_info([
+            ('args', repr(func_args)),
+            ('timeit', timeit_msg),
+            ('line_profiler', lp_msg),
+        ], log_file_name)
+
+
+def lprun(func, args, funcs=None, silence=False, return_msg=False):
     funcs = funcs or []
     if isinstance(args, str) or not isinstance(args, Iterable):
         args = (args, )
@@ -30,30 +62,36 @@ def lprun(func, args, funcs=None):
     for f in funcs:
         lp.add_function(f)
     lp_wrapper = lp(func)
-
     lp_wrapper(*args)
-    eprint()
-    lp.print_stats(stream=sys.stderr)
+
+    output = StringIO()
+    lp.print_stats(stream=output)
+    msg = output.getvalue()
+    if not silence:
+        eprint(msg)
+    if return_msg:
+        return msg
 
 
-def timeit_lp(func, func_args, funcs=None, num_iter=100, time_limit=0.1):
-    timeit(func, func_args, num_iter=num_iter, time_limit=time_limit)
-    lprun(func, func_args, funcs=funcs)
-
-
-def timeit(func, func_args, num_iter=100, time_limit=0.1):
-    """execute func num_iter times and print elapse time info to stderr"""
+def timeit(func, func_args, num_iter=100, time_limit=0.1, silence=False, return_msg=False):
     elapse_times = _calc_elapse_times(func, func_args, num_iter=num_iter, time_limit=time_limit)
-    _print_elapse_time(elapse_times)
+    msg = make_elapse_time_msg(elapse_times)
+    if not silence:
+        eprint(msg)
+    if return_msg:
+        return msg
 
 
-def timeits(func, func_args_list, num_iter=100, time_limit_per_args=0.1):
-    """execute func for func_args_list and print elapse time info to stderr"""
+def timeits(func, func_args_list, num_iter=100, time_limit_per_args=0.1, silence=False, return_msg=False):
     elapse_times = []
     for func_args in func_args_list:
         e_times = _calc_elapse_times(func, func_args, num_iter=num_iter, time_limit=time_limit_per_args)
         elapse_times.extend(e_times)
-    _print_elapse_time(elapse_times)
+    msg = make_elapse_time_msg(elapse_times)
+    if not silence:
+        eprint(msg)
+    if return_msg:
+        return msg
 
 
 def time_complexity(func: Callable, args_func: Callable, scales: Iterable, num_iter=10, time_limit=1):
@@ -105,17 +143,23 @@ def ext_binary_to_func(binary_path, binary_dir=BINARY_DIR_BASE) -> Callable:
     return func
 
 
-@deprecated(details='use mock_io')
-def io_mock(func):
-    return mock_io(func)
-
-
 def mock_io(func):
     def mocked_func(stdin_str):
         with patch("sys.stdin", StringIO(stdin_str)), patch("sys.stdout", new_callable=StringIO) as mocked_out:
             func()
         return mocked_out.getvalue().strip()
     return mocked_func
+
+
+@deprecated(details='use mock_io')
+def io_mock(func):
+    return mock_io(func)
+
+
+@deprecated('Use io_mock instead')
+def evaluate_via_io(func, in_str):
+    return _evaluate(func, in_str, io_mock=True)
+
 
 ################################################################################
 ################################################################################
@@ -163,6 +207,12 @@ def _to_time_str(sec):
         return '{:.2f}ns'.format(sec * 1e9)
 
 
+def make_elapse_time_msg(elapse_times):
+    avg_time = sum(elapse_times) / len(elapse_times)
+    msg = '==> avg time: {} in {} iterations'.format(_to_time_str(avg_time), len(elapse_times))
+    return msg
+
+
 def _print_elapse_time(elapse_times):
     avg_time = sum(elapse_times) / len(elapse_times)
-    eprint('\n==> avg time: {} in {} iterations'.format(_to_time_str(avg_time), len(elapse_times)))
+    eprint('==> avg time: {} in {} iterations'.format(_to_time_str(avg_time), len(elapse_times)))

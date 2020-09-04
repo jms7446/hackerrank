@@ -15,6 +15,7 @@ def v_shift(A, B, r, c, s, shift):
 
 
 def rotate(A, rotation):
+    # FIXME most of time is spent here.
     B = deepcopy(A)
     r, c, s = rotation
     for ss in range(1, s + 1):
@@ -87,7 +88,7 @@ def test_main():
     out_str = """
 12
     """.strip()
-    assert io_mock(main)(in_str) == out_str
+    assert mock_io(main)(in_str) == out_str
 
 
 def test_generated1():
@@ -103,7 +104,7 @@ def test_generated1():
     out_str = """
 10
     """.strip()
-    assert io_mock(main)(in_str) == out_str
+    assert mock_io(main)(in_str) == out_str
 
 
 def test_generated2():
@@ -118,7 +119,7 @@ def test_generated2():
     out_str = """
 17
     """.strip()
-    assert io_mock(main)(in_str) == out_str
+    assert mock_io(main)(in_str) == out_str
 
 
 def test_generated3():
@@ -134,7 +135,7 @@ def test_generated3():
     out_str = """
 88
     """.strip()
-    assert io_mock(main)(in_str) == out_str
+    assert mock_io(main)(in_str) == out_str
 
 
 def make_prob(rN=50, rM=50, rK=6):
@@ -159,10 +160,14 @@ def make_prob(rN=50, rM=50, rK=6):
 
 def test_time():
     generator = generate_probs(make_prob, count=5)
-    timeits(io_mock(main), generator)
+    timeits(mock_io(main), generator)
+
+
+def test_profile():
+    timeit_lp(mock_io(main), make_prob(), funcs=[solve, find_min, rotate], log=False)
 
 
 @pytest.mark.skip
 def test_compare():
     generator = generate_probs(make_prob, count=10)
-    compare_func_results(ext_binary_to_func('p17406'), io_mock(main), generator)
+    compare_func_results(ext_binary_to_func('p17406'), mock_io(main), generator)
