@@ -1,6 +1,7 @@
 # 셔틀버스
 
 
+
 def time_to_int(t):
     h, m = [int(x) for x in t.split(':')]
     return h * 60 + m
@@ -12,23 +13,26 @@ def int_to_time(i):
 
 
 def solution(n, t, m, timetable):
-    time_table = sorted([time_to_int(t) for t in timetable])
+    line_up = sorted([time_to_int(t) for t in timetable])
     start_bus = time_to_int('09:00')
     last_bus = start_bus + t * (n - 1)
+    if line_up[-1] <= last_bus:
+        line_up.append(last_bus + 1)     # a late crew, this crew can never take a bus, and remain in the line_up
 
-    next_idx = 0
-    left = m
-    cur_bus = start_bus
-    for i in range(n):
-        cur_bus = start_bus + t * i
-        left = m
-        while left > 0 and next_idx < len(time_table) and time_table[next_idx] <= cur_bus:
-            left -= 1
-            next_idx += 1
+    next_crew = 0
+    seat_left = 0
+    for cur_bus in range(start_bus, last_bus + 1, t):
+        seat_left = m
+        while seat_left > 0 and line_up[next_crew] <= cur_bus:
+            seat_left -= 1
+            next_crew += 1
 
-    if next_idx == 0 or left > 0 or cur_bus < last_bus:
+    # if last bus has underoccupied seat, just take last bus.
+    # else 1 minute earlier than the last one who take the last bus.
+    if seat_left > 0:
         return int_to_time(last_bus)
-    return int_to_time(time_table[next_idx - 1] - 1)
+    else:
+        return int_to_time(line_up[next_crew - 1] - 1)
 
 
 def test_main():
