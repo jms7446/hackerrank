@@ -34,6 +34,80 @@ class KMP:
                     j += 1
 
 
+# 190ms
+# forwart: 94ms
+# backward: 53ms
+def solve_rabin_karp_naive(txt, ptn):
+    """
+    N = len(txt)
+    M = len(ptn)
+    complexity = O(N + M)
+
+    ptn: abcd
+    txt: abcabcd
+         abca
+          bcab
+           cabc
+            abcd
+
+    H[i] = S[i] * 2**(M-1) + S[i+1] * 2**(M-2) + ... + S[i+M-1] * 2**0
+      ex)
+    H[0] = ('a' * 8) + ('b' * 4) + ('c' * 2) + ('a' * 1)        # abca
+    H[1] = ('b' * 8) + ('c' * 4) + ('a' * 2) + ('b' * 1)        #  bcab
+         = (('b' * 4) + ('c' * 2) + ('a' * 1)) * 2 + ('b' * 1)
+    """
+    def l_hash(s):
+        h = 0
+        for i in range(len(ptn)):
+            h = 2 * h + ord(s[i])
+        return h
+
+    if len(txt) < len(ptn):
+        return 0
+    if txt == ptn:
+        return 1
+
+    M = len(ptn)
+    ptn_hash = l_hash(ptn)
+    txt_hash = l_hash(txt[:M])
+    h = 2 ** (M - 1)
+    for i in range(M, len(txt)):
+        oc = txt[i - M]
+        ic = txt[i]
+        txt_hash = (txt_hash - ord(oc) * h) * 2 + ord(ic)
+        if ptn_hash == txt_hash and txt[i-M+1:i+1] == ptn:
+            return 1
+    return 0
+
+
+# 40.55ms
+def solve_rabin_karp(txt, ptn):
+    N = len(txt)
+    M = len(ptn)
+    d = 256
+    q = 10007
+    if N < M:
+        return 0
+
+    p = t = 0
+    for i in range(len(ptn)):
+        p = (d * p + ord(ptn[i])) % q
+        t = (d * t + ord(txt[i])) % q
+
+    # h = d ** (M - 1) (반복계산)
+    h = 1
+    for i in range(M - 1):
+        h = (h * d) % q
+
+    if p == t and txt[:M] == ptn:
+        return 1
+    for i in range(N - M):
+        t = (d * (t - ord(txt[i]) * h) + ord(txt[i+M])) % q
+        if p == t and txt[i+1:i+M+1] == ptn:
+            return 1
+    return 0
+
+
 # elapse time - test_big: 123ms, test_small: 119ms
 def solve(S, P):
     if len(S) < len(P):
@@ -49,7 +123,7 @@ def main():
     stdin = sys.stdin
     S = stdin.readline().strip()
     P = stdin.readline().strip()
-    print(solve(S, P))
+    print(solve_rabin_karp_naive(S, P))
 
 
 if __name__ == "__main__":
@@ -58,6 +132,20 @@ if __name__ == "__main__":
 
 from util import *
 import pytest
+
+
+# @pytest.mark.skip
+def test_time():
+    import random
+    import string
+
+    N = 100000
+    P = 100
+    random.seed(2)
+    in_str = ''.join(random.choice(string.ascii_lowercase) for _ in range(N))
+    ptn = ''.join(random.choice(string.ascii_lowercase) for _ in range(P))
+    timeit_lp(solve_rabin_karp, (in_str, ptn), num_iter=10, time_limit=1, funcs=[],
+              log=False, omit_func_args=True, changed='')
 
 
 def test_time1():
@@ -88,6 +176,13 @@ def test_kmp_table():
     kmp = KMP('abababac')
     assert kmp.table == [0, 0, 1, 2, 3, 4, 5, 0]
     assert list(kmp.search('xababababababac')) == [7]
+
+
+def test_prime():
+    from util.mymath import iter_primes
+    for p in iter_primes(100000, begin=10000):
+        eprint(p)
+        break
 
 
 @pytest.mark.parametrize(('in_str', 'out_str'), [

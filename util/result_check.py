@@ -1,4 +1,3 @@
-import sys
 from unittest.mock import patch
 from io import StringIO
 import time
@@ -11,7 +10,7 @@ from deprecation import deprecated
 from line_profiler import LineProfiler
 
 from util.tools import eprint, get_caller_filename
-from util.prob_generate import list_to_string
+from util.prob_generate import list_to_string, merge_to_lines
 
 MAX_LOOP = 10 ** 8
 BINARY_DIR_BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../ext_code')
@@ -122,13 +121,13 @@ def compare_func_result(func1, func2, args, silence=False):
             lines = [
                 '=================== in_str   ==================',
                 list_to_string(args),
-                '=================== expected ==================',
+                '=================== func1 ==================',
                 res1,
-                '=================== actual   ==================',
+                '=================== func2   ==================',
                 res2,
                 '===============================================',
             ]
-            eprint('\n'.join(lines))
+            eprint(merge_to_lines(lines))
         raise Exception("Match Failed")
 
 
