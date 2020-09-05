@@ -94,7 +94,7 @@ def solve_rabin_karp(txt, ptn):
         p = (d * p + ord(ptn[i])) % q
         t = (d * t + ord(txt[i])) % q
 
-    # h = d ** (M - 1) (반복계산)
+    # h = d ** (M - 1)
     h = 1
     for i in range(M - 1):
         h = (h * d) % q
@@ -123,7 +123,7 @@ def main():
     stdin = sys.stdin
     S = stdin.readline().strip()
     P = stdin.readline().strip()
-    print(solve_rabin_karp_naive(S, P))
+    print(solve_rabin_karp(S, P))
 
 
 if __name__ == "__main__":
