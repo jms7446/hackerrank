@@ -25,11 +25,12 @@ def solution(n, t, m, timetable):
         while seat_left > 0 and line_up[next_crew] <= cur_bus:
             seat_left -= 1
             next_crew += 1
+    last_bus = cur_bus
 
-    # if last bus has underoccupied seat, just take last bus.
+    # if last bus has unoccupied seat, just take last bus.
     # else 1 minute earlier than the last one who take the last bus.
     if seat_left > 0:
-        return int_to_time(cur_bus)
+        return int_to_time(last_bus)
     else:
         return int_to_time(line_up[next_crew - 1] - 1)
 
