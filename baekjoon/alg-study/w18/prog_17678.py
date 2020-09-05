@@ -1,7 +1,6 @@
 # 셔틀버스
 
 
-
 def time_to_int(t):
     h, m = [int(x) for x in t.split(':')]
     return h * 60 + m
@@ -15,7 +14,7 @@ def int_to_time(i):
 def solution(n, t, m, timetable):
     start_bus = time_to_int('09:00')
     line_up = sorted([time_to_int(t) for t in timetable])
-    line_up.append(time_to_int('23:59'))    # this late crew can never take a bus, and remains in the line_up.
+    line_up.append(time_to_int('23:59'))    # this crew can never take a bus, and remains in the line_up.
 
     next_crew = 0
     seat_left = 0
