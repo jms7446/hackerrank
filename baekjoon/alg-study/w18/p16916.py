@@ -18,7 +18,6 @@ class KMP:
                 table[pos] = cnd
         return table
 
-    @classmethod
     def search(self, in_str):
         ptn = self.ptn
         table = self.table
