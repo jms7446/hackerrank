@@ -1,17 +1,21 @@
 from typing import List, Set, Dict
 
 
-class Solution:
-    def func(self, d):
+class SolutionFirst:
+    """
+    """
+    def xx(self, in_):
         return -1
 
 
-from util import *
+Solution = SolutionFirst
+
+
 import pytest
 
 
-@pytest.mark.parametrize(['input_', 'output'], [
+@pytest.mark.parametrize(['in_', 'out'], [
     (1, 1),
 ])
-def test_solution(input_, output):
-    assert Solution().func(input_) == output
+def test1(in_, out):
+    assert Solution().xx(in_) == out

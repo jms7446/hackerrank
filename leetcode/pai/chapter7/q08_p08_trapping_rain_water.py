@@ -4,7 +4,7 @@ from operator import itemgetter
 
 class SolutionBySort:
     """First thought
-    runtime: 65%, memory: 5%
+    56ms, 15.4MB, runtime: 65%, memory: 5%
     """
     @staticmethod
     def calc_one_sided_area(heights):
@@ -28,8 +28,8 @@ class SolutionBySort:
         return  left_area + right_area
 
 
-class SolutionSeperate:
-    """Seperate (no sort)
+class Solution:
+    """Separate (no sort)
     44ms, 14.5MB, runtime: 97%, memory: 77%
     """
     def half_sized_area(self, heights):
@@ -52,6 +52,57 @@ class SolutionSeperate:
         left_area = self.half_sized_area(heights[:highest_idx+1])
         right_area = self.half_sized_area(reversed(heights[highest_idx:]))
         return left_area + right_area
+
+
+class SolutionTwoPointer:
+    """Two pointer
+    48ms, 14.6MB
+    """
+    def trap(self, heights: List[int]) -> int:
+        if not heights:
+            return 0
+
+        left, right = 0, len(heights) - 1
+        left_max, right_max = heights[left], heights[right]
+        area = 0
+        left_update = False
+        while left <= right:
+            if left_update:
+                left_max = max(left_max, heights[left])
+            else:
+                right_max = max(right_max, heights[right])
+            if left_max <= right_max:
+                area += left_max - heights[left]
+                left += 1
+                left_update = True
+            else:
+                area += right_max - heights[right]
+                right -= 1
+                left_update = False
+        return area
+
+
+class Solution:
+    """
+    60ms, 14.4MB
+    """
+    def trap(self, heights: List[int]) -> int:
+        stack = []
+        area = 0
+        for i in range(len(heights)):
+            while stack and heights[i] > heights[stack[-1]]:
+                top = stack.pop()
+                if not len(stack):
+                    break
+
+                distance = i - stack[-1] - 1
+                waters = min(heights[i], heights[stack[-1]]) - heights[top]
+
+                area += distance * waters
+
+            stack.append(i)
+
+        return area
 
 
 def test1():
