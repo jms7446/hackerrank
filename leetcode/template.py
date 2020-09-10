@@ -1,17 +1,13 @@
 from typing import List, Set, Dict
+import pytest
 
 
 class SolutionFirst:
-    """
-    """
     def xx(self, in_):
         return -1
 
 
 Solution = SolutionFirst
-
-
-import pytest
 
 
 @pytest.mark.parametrize(['in_', 'out'], [

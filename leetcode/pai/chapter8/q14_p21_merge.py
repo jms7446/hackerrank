@@ -1,6 +1,4 @@
-from typing import List, Set, Dict
-
-from .linked_list import *
+from leetcode.pai.linked_list import *
 
 
 class SolutionFirst:

@@ -30,3 +30,7 @@ def list_to_list_node(xs):
 
 def test_list_node_convert():
     assert list_node_to_list(list_to_list_node([1, 2, 3])) == [1, 2, 3]
+
+
+l2ln = list_to_list_node
+ln2l = list_node_to_list
