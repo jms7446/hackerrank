@@ -2,7 +2,8 @@ import sys
 from itertools import count
 
 
-def solve(N, xs):
+# 16.15ms
+def solve_org(N, xs):
     if N == 1:
         return 0
 
@@ -26,6 +27,21 @@ def solve(N, xs):
         stack = new_stack
 
 
+INF = float('inf')
+
+
+# 2.13ms
+def solve(N, xs):
+    xs = list(reversed(xs))
+    dp = [INF] * N
+    dp[0] = 0
+    for i in range(1, N):
+        if xs[i] > 0:
+            left = max(0, i - xs[i])
+            dp[i] = min(dp[left:i]) + 1
+    return dp[N-1] if dp[N-1] != INF else -1
+
+
 def main():
     stdin = sys.stdin
     N = int(stdin.readline())
@@ -38,6 +54,24 @@ if __name__ == "__main__":
 
 from util import *
 import pytest
+import random
+
+
+def test_time():
+    random.seed(2)
+    N = 1000
+    xs = [random.randint(0, 100) for _ in range(N)]
+    timeit_lp(solve, (N, xs), num_iter=1000, time_limit=1)  # , log=True, changed='base')
+
+
+def test_compare():
+    def gen_prob(N=1000):
+        xs = [random.randint(0, 100) for _ in range(N)]
+        return (N, xs)
+
+    compare_func_results(solve, solve_org, generate_probs(gen_prob, (100, ), count=1000))
+
+
 
 
 @pytest.mark.parametrize(('in_str', 'out_str'), [
