@@ -1,7 +1,7 @@
 from typing import List, Set, Dict
 from heapq import heappush, heappop, heapify
 import pytest
-from leetcode.pai.linked_list import *
+from leetcode.pai.data_structure import *
 
 
 # hack. to avoid comparision of ListNode, insert index to element in front of ListNode.

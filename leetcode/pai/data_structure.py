@@ -34,3 +34,29 @@ def test_list_node_convert():
 
 l2ln = list_to_list_node
 ln2l = list_node_to_list
+
+
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
