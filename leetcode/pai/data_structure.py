@@ -51,7 +51,7 @@ class TreeNode:
         self.left = left
         self.right = right
 
-    def __str__(self):
+    def __repr__(self):
         left = self.left.val if self.left else '_'
         right = self.right.val if self.right else '_'
         return f'TN({self.val}, {left}, {right})'
