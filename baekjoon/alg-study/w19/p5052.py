@@ -13,7 +13,7 @@ class NoDupPrefixStore:
         self.trie_root = TrieNode()
 
     def insert(self, word: str) -> bool:
-        """return sucess/fail"""
+        """return success/fail"""
         node = self.trie_root
         for idx, c in enumerate(word):
             if node.exist:
