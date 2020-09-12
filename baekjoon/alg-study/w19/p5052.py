@@ -7,28 +7,35 @@ class TrieNode:
         self.children = children or {}
 
 
-def check_and_insert(node: TrieNode, word: str):
-    char_list = list(reversed(word))
-    while char_list:
-        if node.exist:
-            return False
-        c = char_list.pop()
-        if c not in node.children:
-            node.children[c] = TrieNode()
-            node = node.children[c]
-        elif not char_list:
-            return False
-        else:
-            node = node.children[c]
+class NoDupPrefixStore:
+    """"중복된 prefix를 가지는 word는 저장하지 않는 store"""
+    def __init__(self):
+        self.trie_root = TrieNode()
 
-    node.exist = True
-    return True
+    def insert(self, word: str) -> bool:
+        """return sucess/fail"""
+        node = self.trie_root
+        for idx, c in enumerate(word):
+            if node.exist:
+                # we found a substring of this word. So we shouldn't insert this word.
+                return False
+            if c in node.children:
+                if idx == len(word) - 1:
+                    # this word is subtring of other word. So we shouldn't insert this word.
+                    return False
+                else:
+                    node = node.children[c]
+            else:
+                node.children[c] = TrieNode()
+                node = node.children[c]
+        node.exist = True
+        return True
 
 
 def solve(N, words):
-    trie_root = TrieNode()
+    store = NoDupPrefixStore()
     for word in words:
-        if not check_and_insert(trie_root, word):
+        if not store.insert(word):
             return False
     return True
 
