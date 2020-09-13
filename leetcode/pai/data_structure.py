@@ -10,8 +10,9 @@ class ListNode:
         self.val = val
         self.next = next
 
-    def __str__(self):
-        return 'N({self.value})'
+    def __repr__(self):
+        l = list_node_to_list(self)
+        return str(l)
 
 
 def list_node_to_list(list_node: ListNode):
