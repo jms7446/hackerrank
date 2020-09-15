@@ -1,6 +1,5 @@
-from typing import List, Set, Dict
 import pytest
-from ..data_structure import *
+from leetcode.data_structure import *
 
 
 # 귀찮아서 패스

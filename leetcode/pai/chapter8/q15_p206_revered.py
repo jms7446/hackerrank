@@ -1,4 +1,4 @@
-from leetcode.pai.data_structure import *
+from leetcode.data_structure import *
 
 
 class SolutionFirst:

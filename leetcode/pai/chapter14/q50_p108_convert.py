@@ -1,6 +1,6 @@
-from typing import List, Set, Dict
+from typing import List
 import pytest
-from ..data_structure import *
+from leetcode.data_structure import *
 
 
 # 76ms, 16.2MB (71%, 45%)

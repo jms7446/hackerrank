@@ -1,6 +1,4 @@
-from typing import List, Set, Dict
-import pytest
-from ..data_structure import *
+from leetcode.data_structure import *
 
 
 # failed, but I don't know why.
