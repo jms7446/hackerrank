@@ -1,12 +1,14 @@
 import sys
 from itertools import combinations
 
-# Right, Left, Bottom, Top ward
+# to Right, to Left, to Bottom, to Top
 R, L, B, T = range(4)
 
 
 def get_cross_size_grid(n, m, grid):
-    """calculate maximum size of cross for each element in the grid"""
+    """calculate maximum size of cross for each element in the grid.
+        long, but straight forward
+    """
     grid = [[int(c == '#') for c in row] for row in grid]
     acc = [[[0] * 4 for _ in range(m)] for _ in range(n)]
     for i in range(n):
@@ -70,7 +72,7 @@ def solve(n, m, grid):
     centers = [(r, c, grid[r][c]) for r, row in enumerate(grid) for c, val in enumerate(row) if grid[r][c] > 0]
 
     # this line is hot-spot, it takes 93% of time.
-    # can we improve this lines?
+    # can we improve this line?
     pairs = {normalize_pair(center1, center2) for center1, center2 in combinations(centers, 2)}
 
     pairs = sorted([(calc_score(s1, s2), r, c, s1, s2) for r, c, s1, s2 in pairs], reverse=True)
