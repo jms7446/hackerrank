@@ -79,11 +79,8 @@ def solve(n, m, grid):
         if score_limit < max_score:
             break
         for ss1, ss2 in iter_sizes(s1, s2):
-            score = calc_score(ss1, ss2)
-            if score < max_score:
-                break
             if not is_interfered(ss1, ss2, r, c):
-                max_score = max(max_score, score)
+                max_score = max(max_score, calc_score(ss1, ss2))
                 break
     return max_score
 
@@ -109,7 +106,7 @@ def test_time():
     n, m = 15, 15
     random.seed(2)
     grid = [['#' if random.random() < ratio else '.' for _ in range(m)] for _ in range(n)]
-    timeit_lp(solve, (n, m, grid), time_limit=1)  # , log=True, omit_func_args=True)
+    timeit_lp(solve, (n, m, grid), time_limit=1)  # , log=True, omit_func_args=True, funcs=[normalize_pair])
 
 
 # @pytest.mark.skip
