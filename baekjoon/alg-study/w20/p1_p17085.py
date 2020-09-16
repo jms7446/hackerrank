@@ -40,9 +40,6 @@ def normalize_pair(center1, center2):
       --> (0, 0, ss1), (r, c, ss2)  (where r <= c and ss1 >= ss2)
       pairs that have the same normalized value will make the same result by symmetry.
     """
-    if center1[2] == 1 and center2[2] == 1:
-        return 1, 1, 1, 1
-
     r1, c1, s1 = center1
     r2, c2, s2 = center2
     r = abs(r2 - r1)
@@ -73,7 +70,8 @@ def solve(n, m, grid):
 
     # this line is hot-spot, it takes 93% of time.
     # can we improve this line?
-    pairs = {normalize_pair(center1, center2) for center1, center2 in combinations(centers, 2)}
+    pairs = {normalize_pair(center1, center2) for center1, center2 in combinations(centers, 2)
+             if center1[2] > 1 or center2[2] > 1}
 
     pairs = sorted([(calc_score(s1, s2), r, c, s1, s2) for r, c, s1, s2 in pairs], reverse=True)
     max_score = 1
