@@ -109,17 +109,16 @@ def test_time():
     timeit_lp(solve, (n, m, grid), time_limit=1)  # , log=True, omit_func_args=True, funcs=[normalize_pair])
 
 
-# @pytest.mark.skip
+@pytest.mark.skip
 def test_compare():
     def gen_prob():
         ratio = 0.6
-        n, m = 10, 10
+        n, m = 3, 3
         grid = [['#' if random.random() < ratio else '.' for _ in range(m)] for _ in range(n)]
         return merge_to_lines([
             list_to_string([n, m]),
             '\n'.join(''.join(row) for row in grid),
         ])
-    # eprint(gen_prob())
     compare_func_results(mock_io(main), ext_binary_to_func('p17085'), generate_probs(gen_prob, count=100))
 
 
