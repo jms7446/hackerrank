@@ -68,13 +68,13 @@ def is_interfered(s1, s2, r, c):
 def solve(n, m, grid):
     grid = get_cross_size_grid(n, m, grid)
     centers = [(r, c, grid[r][c]) for r, row in enumerate(grid) for c, val in enumerate(row) if grid[r][c] > 0]
-    max_score = 1
 
     # this line is hot-spot, it takes 93% of time.
     # can we improve this lines?
     pairs = {normalize_pair(center1, center2) for center1, center2 in combinations(centers, 2)}
 
     pairs = sorted([(calc_score(s1, s2), r, c, s1, s2) for r, c, s1, s2 in pairs], reverse=True)
+    max_score = 1
     for score_limit, r, c, s1, s2 in pairs:
         if score_limit < max_score:
             break
