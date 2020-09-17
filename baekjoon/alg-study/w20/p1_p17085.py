@@ -80,8 +80,8 @@ def calc_score_with_adjusting_size(center1, center2):
 
 # 1.53ms
 def solve(n, m, grid):
-    def iter_center_pairs(centers):
-        """iterate center pairs with pruning
+    def combination_with_pruning(centers):
+        """generate combination(centers) with pruning
         max_score is important variable for pruning, maintained in the main function's loop
         """
         nonlocal max_score
@@ -99,7 +99,7 @@ def solve(n, m, grid):
     max_score = 1
     grid = get_cross_size_grid(n, m, grid)
     centers = [(r, c, grid[r][c]) for r, row in enumerate(grid) for c, val in enumerate(row) if grid[r][c] > 0]
-    for center1, center2 in iter_center_pairs(centers):
+    for center1, center2 in combination_with_pruning(centers):
         score = calc_score_with_adjusting_size(center1, center2)
         max_score = max(max_score, score)
     return max_score
