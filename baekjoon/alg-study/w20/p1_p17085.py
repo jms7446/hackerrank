@@ -6,8 +6,11 @@ R, L, B, T = range(4)
 
 
 def get_cross_size_grid(n, m, grid):
-    """calculate maximum size of cross for each element in the grid.
-        long, but straight forward
+    """calculate maximum size of cross for each element in the grid. time & space complexity is O(nm)
+
+    first, calculate continuous '#' count for each 4-direction respectively.
+    Then, take min for each grid element.
+    Verbose, but straight forward.
     """
     grid = [[int(c == '#') for c in row] for row in grid]
     acc = [[[0] * 4 for _ in range(m)] for _ in range(n)]
@@ -69,7 +72,6 @@ def is_interfered(s1, s2, r, c):
 
 
 def solve(n, m, grid):
-    from operator import itemgetter
     grid = get_cross_size_grid(n, m, grid)
     centers = [(r, c, grid[r][c]) for r, row in enumerate(grid) for c, val in enumerate(row) if grid[r][c] > 0]
 
