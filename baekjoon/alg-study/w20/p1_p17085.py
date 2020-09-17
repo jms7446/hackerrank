@@ -8,7 +8,7 @@ from typing import Sequence, Callable, TypeVar, Iterator, Tuple
 U = TypeVar('U')
 
 
-def combination_with_pruning(items: Sequence[U], condition: Callable[[U, U], bool]) -> Iterator[Tuple[U, U]]:
+def combination2_with_pruning(items: Sequence[U], condition: Callable[[U, U], bool]) -> Iterator[Tuple[U, U]]:
     """generate combination(items) with pruning
 
     note.
@@ -113,11 +113,12 @@ def calc_score(s1, s2):
 
 
 def solve(n, m, grid):
-    max_score = 1
     grid = get_cross_size_grid(n, m, grid)
+
+    max_score = 1
     centers = [Center(r, c, grid[r][c]) for r, row in enumerate(grid) for c, val in enumerate(row) if grid[r][c] > 0]
     centers = sorted(centers, key=attrgetter('size'), reverse=True)
-    for center1, center2 in combination_with_pruning(centers, lambda c1, c2: calc_score(c1.size, c2.size) > max_score):
+    for center1, center2 in combination2_with_pruning(centers, lambda c1, c2: calc_score(c1.size, c2.size) > max_score):
         score = calc_score_with_adjusting_size(center1, center2)
         max_score = max(max_score, score)
     return max_score
