@@ -1,9 +1,43 @@
+from typing import Sequence, Callable, TypeVar, Iterator, Tuple
+
+U = TypeVar('U')
+
+
+def combination_with_pruning(items: Sequence[U], condition: Callable[[U, U], bool]) -> Iterator[Tuple[U, U]]:
+    """generate combination(items) with pruning
+
+    note.
+      1. items must be sorted by caller appropriately.
+      2. condition(item1, item1) must have valid meaning.
+    """
+    for i in range(len(items) - 1):
+        item1 = items[i]
+        if not condition(item1, item1):
+            break
+        for j in range(i + 1, len(items)):
+            item2 = items[j]
+            if not condition(item1, item2):
+                break
+            yield item1, item2
+
+
+################################################################################
+
+
 import sys
-from itertools import combinations
-from operator import itemgetter
+from operator import itemgetter, attrgetter
+from dataclasses import dataclass
+
 
 # Right, Left, Bottom, Top
 R, L, B, T = range(4)
+
+
+@dataclass(frozen=True)
+class Center:
+    row: int
+    col: int
+    size: int
 
 
 def get_cross_size_grid(n, m, grid):
@@ -38,68 +72,47 @@ def get_cross_size_grid(n, m, grid):
     return grid
 
 
-def iter_sizes(s1, s2):
-    while s1 > 1 or s2 > 1:
-        yield s1, s2
-        if s1 == s2:
-            s2 -= 1
-        else:
-            s1 -= 1
+def calc_score_with_adjusting_size(center1: Center, center2: Center):
+    def normalize_pair(center1, center2):
+        """normalize pair to the form (r, c, ss1, ss2)
+        (r1, c1, s1), (r2, c2, s2)
+          --> (0, 0, ss1), (r, c, ss2)  (where r <= c and ss1 >= ss2)
+          pairs that have the same normalized value will make the same result by symmetry.
+        """
+        row = abs(center2.row - center1.row)
+        col = abs(center2.col - center1.col)
+        if row > col:
+            row, col = col, row
+        return row, col, center1.size, center2.size
+
+    def iter_sizes(s1, s2):
+        while s1 > 1 or s2 > 1:
+            yield s1, s2
+            if s1 == s2:
+                s2 -= 1
+            else:
+                s1 -= 1
+
+    def is_interfered(r, c, s1, s2):
+        return r == 0 and c < s1 + s2 or r < s2 and c < s1
+
+    row, col, size1, size2 = normalize_pair(center1, center2)
+    for s1, s2 in iter_sizes(size1, size2):
+        if not is_interfered(row, col, s1, s2):
+            return calc_score(s1, s2)
+    return 0
 
 
 def calc_score(s1, s2):
     return (4 * (s1 - 1) + 1) * (4 * (s2 - 1) + 1)
 
 
-def is_interfered(s1, s2, r, c):
-    return r == 0 and c < s1 + s2 or r < s2 and c < s1
-
-
-def normalize_pair(center1, center2):
-    """normalize pair to the form (r, c, ss1, ss2)
-    (r1, c1, s1), (r2, c2, s2)
-      --> (0, 0, ss1), (r, c, ss2)  (where r <= c and ss1 >= ss2)
-      pairs that have the same normalized value will make the same result by symmetry.
-    """
-    r1, c1, s1 = center1
-    r2, c2, s2 = center2
-    r = abs(r2 - r1)
-    c = abs(c2 - c1)
-    if r > c:
-        r, c = c, r
-    return r, c, s1, s2
-
-
-def calc_score_with_adjusting_size(center1, center2):
-    r, c, s1, s2 = normalize_pair(center1, center2)
-    for ss1, ss2 in iter_sizes(s1, s2):
-        if not is_interfered(ss1, ss2, r, c):
-            return calc_score(ss1, ss2)
-    return 0
-
-
-# 1.53ms
 def solve(n, m, grid):
-    def combination_with_pruning(centers):
-        """generate combination(centers) with pruning
-        max_score is important variable for pruning, maintained in the main function's loop
-        """
-        nonlocal max_score
-        centers_sorted = sorted(centers, key=itemgetter(2), reverse=True)
-        for i in range(len(centers_sorted) - 1):
-            s1 = centers_sorted[i][2]
-            if calc_score(s1, s1) < max_score:
-                break
-            for j in range(i + 1, len(centers_sorted)):
-                s2 = centers_sorted[j][2]
-                if calc_score(s1, s2) < max_score:
-                    break
-                yield centers_sorted[i], centers_sorted[j]
-
     max_score = 1
     grid = get_cross_size_grid(n, m, grid)
-    centers = [(r, c, grid[r][c]) for r, row in enumerate(grid) for c, val in enumerate(row) if grid[r][c] > 0]
-    for center1, center2 in combination_with_pruning(centers):
+    centers = [Center(r, c, grid[r][c]) for r, row in enumerate(grid) for c, val in enumerate(row) if grid[r][c] > 0]
+    centers = sorted(centers, key=attrgetter('size'), reverse=True)
+    for center1, center2 in combination_with_pruning(centers, lambda c1, c2: calc_score(c1.size, c2.size) > max_score):
         score = calc_score_with_adjusting_size(center1, center2)
         max_score = max(max_score, score)
     return max_score
@@ -129,7 +142,7 @@ def test_time():
     timeit_lp(solve, (n, m, grid), time_limit=1, funcs=[])  # , log=True, omit_func_args=True)
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_compare():
     def gen_prob():
         ratio = 0.6
