@@ -1,7 +1,7 @@
 import sys
 from itertools import combinations
 
-# to Right, to Left, to Bottom, to Top
+# Right, Left, Bottom, Top
 R, L, B, T = range(4)
 
 
@@ -12,25 +12,25 @@ def get_cross_size_grid(n, m, grid):
     grid = [[int(c == '#') for c in row] for row in grid]
     acc = [[[0] * 4 for _ in range(m)] for _ in range(n)]
     for i in range(n):
-        acc[i][0][R] = grid[i][0]
-        acc[i][-1][L] = grid[i][-1]
+        acc[i][0][L] = grid[i][0]
+        acc[i][-1][R] = grid[i][-1]
         for j in range(1, m):
             val = grid[i][j]
-            acc[i][j][R] = acc[i][j-1][R] + val if val else 0
+            acc[i][j][L] = acc[i][j-1][L] + val if val else 0
             val = grid[i][-j-1]
-            acc[i][-j-1][L] = acc[i][-j][L] + val if val else 0
+            acc[i][-j-1][R] = acc[i][-j][R] + val if val else 0
     for j in range(m):
-        acc[0][j][B] = grid[0][j]
-        acc[-1][j][T] = grid[-1][j]
+        acc[0][j][T] = grid[0][j]
+        acc[-1][j][B] = grid[-1][j]
         for i in range(1, n):
             val = grid[i][j]
-            acc[i][j][B] = acc[i-1][j][B] + val if val else 0
+            acc[i][j][T] = acc[i-1][j][T] + val if val else 0
             val = grid[-i-1][j]
-            acc[-i-1][j][T] = acc[-i][j][T] + val if val else 0
+            acc[-i-1][j][B] = acc[-i][j][B] + val if val else 0
 
     for i in range(n):
         for j in range(m):
-            grid[i][j] = min(acc[i][j][R], acc[i][j][L], acc[i][j][B], acc[i][j][T])
+            grid[i][j] = min(acc[i][j])
     return grid
 
 
@@ -44,7 +44,11 @@ def normalize_pair(center1, center2):
     r2, c2, s2 = center2
     r = abs(r2 - r1)
     c = abs(c2 - c1)
-    return min(r, c), max(r, c), max(s1, s2), min(s1, s2)
+    if r > c:
+        r, c = c, r
+    if s1 < s2:
+        s1, s2 = s2, s1
+    return r, c, s1, s2
 
 
 def iter_sizes(s1, s2):
@@ -65,6 +69,7 @@ def is_interfered(s1, s2, r, c):
 
 
 def solve(n, m, grid):
+    from operator import itemgetter
     grid = get_cross_size_grid(n, m, grid)
     centers = [(r, c, grid[r][c]) for r, row in enumerate(grid) for c, val in enumerate(row) if grid[r][c] > 0]
 
