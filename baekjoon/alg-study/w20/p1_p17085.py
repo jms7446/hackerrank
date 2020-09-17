@@ -1,5 +1,6 @@
 import sys
 from itertools import combinations
+from operator import itemgetter
 
 # Right, Left, Bottom, Top
 R, L, B, T = range(4)
@@ -37,23 +38,6 @@ def get_cross_size_grid(n, m, grid):
     return grid
 
 
-def normalize_pair(center1, center2):
-    """normalize pair to the form (r, c, ss1, ss2)
-    (r1, c1, s1), (r2, c2, s2)
-      --> (0, 0, ss1), (r, c, ss2)  (where r <= c and ss1 >= ss2)
-      pairs that have the same normalized value will make the same result by symmetry.
-    """
-    r1, c1, s1 = center1
-    r2, c2, s2 = center2
-    r = abs(r2 - r1)
-    c = abs(c2 - c1)
-    if r > c:
-        r, c = c, r
-    if s1 < s2:
-        s1, s2 = s2, s1
-    return r, c, s1, s2
-
-
 def iter_sizes(s1, s2):
     while s1 > 1 or s2 > 1:
         yield s1, s2
@@ -71,24 +55,53 @@ def is_interfered(s1, s2, r, c):
     return r == 0 and c < s1 + s2 or r < s2 and c < s1
 
 
+def normalize_pair(center1, center2):
+    """normalize pair to the form (r, c, ss1, ss2)
+    (r1, c1, s1), (r2, c2, s2)
+      --> (0, 0, ss1), (r, c, ss2)  (where r <= c and ss1 >= ss2)
+      pairs that have the same normalized value will make the same result by symmetry.
+    """
+    r1, c1, s1 = center1
+    r2, c2, s2 = center2
+    r = abs(r2 - r1)
+    c = abs(c2 - c1)
+    if r > c:
+        r, c = c, r
+    return r, c, s1, s2
+
+
+def calc_score_with_adjusting_size(center1, center2):
+    r, c, s1, s2 = normalize_pair(center1, center2)
+    for ss1, ss2 in iter_sizes(s1, s2):
+        if not is_interfered(ss1, ss2, r, c):
+            return calc_score(ss1, ss2)
+    return 0
+
+
+# 1.53ms
 def solve(n, m, grid):
+    def iter_center_pairs(centers):
+        """iterate center pairs with pruning
+        max_score is important variable for pruning, maintained in the main function's loop
+        """
+        nonlocal max_score
+        centers_sorted = sorted(centers, key=itemgetter(2), reverse=True)
+        for i in range(len(centers_sorted) - 1):
+            s1 = centers_sorted[i][2]
+            if calc_score(s1, s1) < max_score:
+                break
+            for j in range(i + 1, len(centers_sorted)):
+                s2 = centers_sorted[j][2]
+                if calc_score(s1, s2) < max_score:
+                    break
+                yield centers_sorted[i], centers_sorted[j]
+
+    max_score = 1
     grid = get_cross_size_grid(n, m, grid)
     centers = [(r, c, grid[r][c]) for r, row in enumerate(grid) for c, val in enumerate(row) if grid[r][c] > 0]
-
-    # this line is hot-spot, it takes 93% of time.
-    # can we improve this line?
-    pairs = {normalize_pair(center1, center2) for center1, center2 in combinations(centers, 2)
-             if center1[2] > 1 or center2[2] > 1}
-
-    pairs = sorted([(calc_score(s1, s2), r, c, s1, s2) for r, c, s1, s2 in pairs], reverse=True)
-    max_score = 1
-    for score_limit, r, c, s1, s2 in pairs:
-        if score_limit < max_score:
-            break
-        for ss1, ss2 in iter_sizes(s1, s2):
-            if not is_interfered(ss1, ss2, r, c):
-                max_score = max(max_score, calc_score(ss1, ss2))
-                break
+    for center1, center2 in iter_center_pairs(centers):
+        score = calc_score_with_adjusting_size(center1, center2)
+        max_score = max(max_score, score)
     return max_score
 
 
@@ -113,14 +126,14 @@ def test_time():
     n, m = 15, 15
     random.seed(2)
     grid = [['#' if random.random() < ratio else '.' for _ in range(m)] for _ in range(n)]
-    timeit_lp(solve, (n, m, grid), time_limit=1)  # , log=True, omit_func_args=True, funcs=[normalize_pair])
+    timeit_lp(solve, (n, m, grid), time_limit=1, funcs=[])  # , log=True, omit_func_args=True)
 
 
 @pytest.mark.skip
 def test_compare():
     def gen_prob():
         ratio = 0.6
-        n, m = 3, 3
+        n, m = 15, 15
         grid = [['#' if random.random() < ratio else '.' for _ in range(m)] for _ in range(n)]
         return merge_to_lines([
             list_to_string([n, m]),
