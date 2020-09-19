@@ -92,7 +92,21 @@ def test_time_worse_case1():
     # 194ms
     timeit(solution, gen_prob(), time_limit=1)
     # 5.6
-    # timeit(solution_ext, gen_prob(), time_limit=1)
+    timeit(solution_ext, gen_prob(), time_limit=1)
+
+
+def test_time_worse_case2():
+    def gen_prob():
+        n = 200000
+        k = 100000
+        stones = [random.randint(200000000, 200000000) for _ in range(n)]
+        return stones, k
+
+    random.seed(2)
+    # 106ms
+    timeit(solution, gen_prob(), time_limit=1)
+    # 109ms
+    timeit(solution_ext, gen_prob(), time_limit=1)
 
 
 def test_time_worse_case2():
