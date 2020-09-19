@@ -99,6 +99,13 @@ def calc_score_with_adjusting_size(center1: Center, center2: Center):
                 s1 -= 1
 
     def is_interfered(r, c, s1, s2):
+        """
+           #                 #   #
+           #     #           #  #O#
+        ###O### #O#       ###O######
+           #     #           #
+           #
+        """
         return r == 0 and c < s1 + s2 or r < s2 and c < s1
 
     row, col, size1, size2 = normalize_pair(center1, center2)
@@ -114,6 +121,7 @@ def calc_score(s1, s2):
 
 def solve(n, m, grid):
     grid = get_cross_size_grid(n, m, grid)
+    eprint(merge_to_lines(grid), '')
 
     max_score = 1
     centers = [Center(r, c, grid[r][c]) for r, row in enumerate(grid) for c, val in enumerate(row) if grid[r][c] > 0]
