@@ -1,6 +1,31 @@
 
 from collections import Counter
 from heapq import heappop, heappush, heapify
+from collections import deque
+from typing import List, Iterator
+
+
+################################################################################
+# from util.tools
+################################################################################
+
+def iter_window_max(xs: List[int], k: int) -> Iterator[int]:
+    queue = deque()
+    for i in range(k):
+        while queue and xs[queue[-1]] <= xs[i]:
+            queue.pop()
+        queue.append(i)
+    yield xs[queue[0]]
+
+    for i in range(k, len(xs)):
+        if queue[0] == i - k:
+            queue.popleft()
+        while queue and xs[queue[-1]] <= xs[i]:
+            queue.pop()
+        queue.append(i)
+        yield xs[queue[0]]
+
+################################################################################
 
 
 def solution_naive(stones, k):
@@ -12,7 +37,7 @@ def solution_naive(stones, k):
     return answer
 
 
-def solution(stones, k):
+def solution_old(stones, k):
     """heap과 hashmap을 이용한 구현
 
     heap과 Counter를 동시에 사용한 이유.
@@ -58,6 +83,14 @@ def solution(stones, k):
     return -answer
 
 
+def solution(stones, k):
+    """O(N) 풀이
+
+    min of max 을 찾는 알고리즘은 O(N)이 존재했다. deque(또는 stack)을 이용한 깔끔한 알고리즘. util.tools 로 재활용을 위해 분리함
+    """
+    return min(iter_window_max(stones, k))
+
+
 def test():
     assert solution([3, 2, 2, 3, 3], 2) == 2
     assert solution([2, 4, 5, 3, 2, 1, 4, 2, 5, 1], 3) == 3
@@ -85,10 +118,12 @@ def test_time():
         return stones, k
 
     random.seed(2)
+    # 158ms
+    timeit_lp(solution, gen_prob(), time_limit=1, funcs=[iter_window_max])
     # 326ms
-    timeit(solution, gen_prob(), time_limit=1)
+    # timeit(solution_old, gen_prob(), time_limit=1)
     # 800ms
-    timeit(solution_ext, gen_prob(), time_limit=1)
+    # timeit(solution_ext, gen_prob(), time_limit=1)
 
 
 def test_time_worse_case1():
@@ -99,10 +134,13 @@ def test_time_worse_case1():
         return stones, k
 
     random.seed(2)
-    # 194ms
+
+    # 130ms
     timeit(solution, gen_prob(), time_limit=1)
+    # 194ms
+    # timeit(solution_old, gen_prob(), time_limit=1)
     # 5.6
-    timeit(solution_ext, gen_prob(), time_limit=1)
+    # timeit(solution_ext, gen_prob(), time_limit=1)
 
 
 def test_time_worse_case2():
@@ -113,10 +151,12 @@ def test_time_worse_case2():
         return stones, k
 
     random.seed(2)
-    # 106ms
+    # 131ms
     timeit(solution, gen_prob(), time_limit=1)
+    # 106ms
+    # timeit(solution_old, gen_prob(), time_limit=1)
     # 109ms
-    timeit(solution_ext, gen_prob(), time_limit=1)
+    # timeit(solution_ext, gen_prob(), time_limit=1)
 
 
 def test_time_worse_case3():
@@ -127,10 +167,12 @@ def test_time_worse_case3():
         return stones, k
 
     random.seed(2)
+    # 159ms
+    timeit(solution, gen_prob(), time_limit=1)
     # 313ms
-    # timeit(solution, gen_prob(), time_limit=1)
+    # timeit(solution_old, gen_prob(), time_limit=1)
     # 57ms
-    timeit(solution_ext, gen_prob(), time_limit=1)
+    # timeit(solution_ext, gen_prob(), time_limit=1)
 
 
 ################################################################################
