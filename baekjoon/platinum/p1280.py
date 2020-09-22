@@ -51,16 +51,18 @@ def solve(N, xs):
 
     tree.update(idx_to_sorted_idx[0], xs[0])
     count_tree.update(idx_to_sorted_idx[0], 1)
+    acc = xs[0]
     res = 1
     for i in range(1, N):
         si = idx_to_sorted_idx[i]
         left_sum = tree.get_range_value(0, si - 1)
         left_count = count_tree.get_range_value(0, si - 1)
-        right_sum = tree.get_range_value(si + 1, N - 1)
+        right_sum = acc - left_sum
         cost = xs[i] * (2 * left_count - i) - left_sum + right_sum
         res = (res * cost) % 1000000007
         tree.update(idx_to_sorted_idx[i], xs[i])
         count_tree.update(idx_to_sorted_idx[i], 1)
+        acc += xs[i]
     return res
 
 
@@ -87,7 +89,7 @@ def test_time():
         return N, xs
 
     random.seed(2)
-    timeit(solve, gen_prob())
+    timeit_lp(solve, gen_prob(), funcs=[SegmentTree.get_range_value, SegmentTree.update])
 
 
 @pytest.mark.parametrize(('in_str', 'out_str'), [
