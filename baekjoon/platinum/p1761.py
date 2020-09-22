@@ -1,27 +1,25 @@
 # 정점들의 거리
 
 import sys
-from typing import List, Union
-from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
 class TreeNode:
-    idx: int
-    depth: int
-    dist: int
-    parent: Union['TreeNode', None]
+    def __init__(self, idx, depth, dist, parent):
+        self.idx  = idx
+        self.depth = depth
+        self.dist = dist
+        self.parent = parent
 
 
 def solve(N, edges, pairs):
     # build graph with edges
-    graph: list = [[] for _ in range(N)]
+    graph = [[] for _ in range(N)]
     for v1, v2, d in edges:
         graph[v1].append((v2, d))
         graph[v2].append((v1, d))
 
     # build tree
-    nodes: List[Union[TreeNode, None]] = [None] * N
+    nodes = [None] * N
     root = TreeNode(0, 1, 0, None)
     nodes[root.idx] = root
     stack = [root]
