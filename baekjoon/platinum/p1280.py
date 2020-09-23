@@ -2,52 +2,39 @@
 
 import sys
 from operator import itemgetter
-from operator import add
 
 
-class SegmentTree:
-    def __init__(self, xs, acc_func=add, init=0):
-        def build(v, il, ir):
-            if il == ir:
-                self.tree[v] = xs[il]
-            else:
-                im = (il + ir) // 2
-                self.tree[v] = self.acc_func(build(v * 2 + 1, il, im), build(v * 2 + 2, im + 1, ir))
-            return self.tree[v]
-
-        self.acc_func = acc_func
-        self.init = init
-        self.n = len(xs)
-        self.tree = [0] * (self.n * 4)   # rough max
-        build(0, 0, self.n - 1)
+class FenwickTree:
+    def __init__(self, xs):
+        self.tree = [0] * (len(xs) + 1)
+        for i in range(1, len(xs) + 1):
+            self._update(i, xs[i - 1])
 
     def get_range_value(self, left, right):
-        def get_value(v, il, ir):
-            if il >= left and ir <= right:
-                return self.tree[v]
-            elif il > right or ir < left:
-                return self.init
-            else:
-                im = (il + ir) // 2
-                return self.acc_func(get_value(v * 2 + 1, il, im), get_value(v * 2 + 2, im + 1, ir))
-        return get_value(0, 0, self.n - 1)
+        return self._sum(right + 1) - self._sum(left)
 
-    def update(self, idx, val):
-        def _update(v, il, ir):
-            if il == idx and ir == idx:
-                self.tree[v] = val
-            elif il <= idx <= ir:
-                im = (il + ir) // 2
-                self.tree[v] = self.acc_func(_update(v * 2 + 1, il, im), _update(v * 2 + 2, im + 1, ir))
-            return self.tree[v]
-        _update(0, 0, self.n - 1)
+    def update(self, idx, diff):
+        self._update(idx + 1, diff)
+
+    def _sum(self, idx):
+        acc = 0
+        while idx > 0:
+            acc += self.tree[idx]
+            idx &= idx - 1
+        return acc
+
+    def _update(self, idx, diff):
+        tree_size = len(self.tree)
+        while idx < tree_size:
+            self.tree[idx] += diff
+            idx += (idx & -idx)
 
 
 def solve(N, xs):
     sorted_xs_with_index = sorted(enumerate(xs), key=itemgetter(1))
     idx_to_sorted_idx = {i: si for si, (i, _) in enumerate(sorted_xs_with_index)}
-    tree = SegmentTree([0] * N)
-    count_tree = SegmentTree([0] * N)
+    tree = FenwickTree([0] * N)
+    count_tree = FenwickTree([0] * N)
 
     tree.update(idx_to_sorted_idx[0], xs[0])
     count_tree.update(idx_to_sorted_idx[0], 1)
@@ -89,7 +76,7 @@ def test_time():
         return N, xs
 
     random.seed(2)
-    timeit_lp(solve, gen_prob(), funcs=[SegmentTree.get_range_value, SegmentTree.update])
+    timeit(solve, gen_prob())
 
 
 @pytest.mark.parametrize(('in_str', 'out_str'), [
