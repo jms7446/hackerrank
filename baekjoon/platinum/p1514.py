@@ -6,7 +6,7 @@ sys.setrecursionlimit(1000000)
 INF = float('inf')
 
 
-def solve(N, start, target):
+def solve_naive_top_down_dp(N, start, target):
     def find(pos, x, y, z, d):
         if pos == N:
             return 0
@@ -31,12 +31,38 @@ def solve(N, start, target):
     return min(find(0, start[0], start[1], start[2], 0), find(0, start[0], start[1], start[2], 1))
 
 
+# TODO: 나중에 다시 구현해보자.
+def solve_bottom_up(N, start, target):
+    def mod(x):
+        return (x + L) % L
+
+    L = 10
+    # start: [0, ... , 0], target = [t0-s0, ... , tn - sn]
+    target = [int(t) - int(s) for s, t in zip(start, target)] + [0] * 3
+    dp = [[[[0] * L for _ in range(L)] for _ in range(L)] for _ in range(N + 2)]
+    for pos in range(N):
+        for y in range(L):
+            for x in range(L):
+                dp[pos][y][x][0] = dp[pos-1][target[pos-3]][y][x]
+        for z in range(L):
+            for y in range(L):
+                for x in (1, 2, 3, 4, 5, 6):
+                    for d in range(1, min(3, x) + 1):
+                        dp[pos][z][y][x] = 1 + min(dp[pos][z][y][x-d], dp[pos][z][mod(y-d)][x-d],
+                                                   dp[pos][mod(z-d)][mod(y-d)][x-d])
+                for x in (7, 8, 9):
+                    for d in range(-1, -min(3, L-x) - 1, -1):
+                        dp[pos][z][y][x] = 1 + min(dp[pos][z][y][mod(x-d)], dp[pos][z][mod(y-d)][mod(x-d)],
+                                                   dp[pos][mod(z-d)][mod(y-d)][mod(x-d)])
+    return dp[N-1][target[N-3]][target[N-2]][target[N-1]]
+
+
 def main():
     stdin = sys.stdin
     N = int(stdin.readline())
     start = stdin.readline().strip()
     target = stdin.readline().strip()
-    print(solve(N, start, target))
+    print(solve_bottom_up(N, start, target))
 
 
 if __name__ == "__main__":
@@ -47,6 +73,7 @@ import pytest
 import random
 
 
+@pytest.mark.skip
 def test_compare():
     def gen_prob():
         N = 3
@@ -77,6 +104,14 @@ def test_compare():
 1
 1
 7
+    '''.strip(),
+     '''
+2
+     '''.strip()),
+    ('''
+2
+31
+27
     '''.strip(),
      '''
 2
