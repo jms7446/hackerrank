@@ -3,7 +3,24 @@ import sys
 from itertools import product
 from collections import defaultdict
 
-DIRECTIONS = [(0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1)]
+
+class Direction:
+    def __init__(self, dir_type, R, C):
+        if dir_type == 4:
+            self.directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+        elif dir_type == 8:
+            self.directions = [(0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1)]
+        else:
+            raise Exception(f'Unknown dir_type: {dir_type}')
+        self.R = R
+        self.C = C
+
+    def iter_next(self, point):
+        pr, pc = point
+        for dr, dc in self.directions:
+            r, c = pr + dr, pc + dc
+            if 0 <= r < self.R and 0 <= c < self.C:
+                yield r, c
 
 
 def count_balls(point, flow_from):
@@ -12,26 +29,30 @@ def count_balls(point, flow_from):
     while stack:
         fr = stack.pop()
         count += 1
-        if fr in flow_from:
-            for fr2 in flow_from[fr]:
-                stack.append(fr2)
+        if fr not in flow_from:
+            continue
+        for fr2 in flow_from[fr]:
+            stack.append(fr2)
     return count
 
 
 def solve(R, C, grid):
+    def get_height(point):
+        return grid[point[0]][point[1]]
+
     if R == 1 and C == 1:
         return [[1]]
 
     local_minimums = set()
     flow_from = defaultdict(list)
-    for r, c in product(range(R), range(C)):
-        neighbors = ((r + dr, c + dc) for dr, dc in DIRECTIONS)
-        neighbors = ((grid[nr][nc], (nr, nc)) for nr, nc in neighbors if (0 <= nr < R and 0 <= nc < C))
-        min_height, flow_to = min(neighbors)
-        if min_height < grid[r][c]:
-            flow_from[flow_to].append((r, c))
+    direction = Direction(8, R, C)
+    for cur_point in product(range(R), range(C)):
+        neighbor_heights = ((get_height(neighbor), neighbor) for neighbor in direction.iter_next(cur_point))
+        min_height, flow_to = min(neighbor_heights)
+        if min_height < get_height(cur_point):
+            flow_from[flow_to].append(cur_point)
         else:
-            local_minimums.add((r, c))
+            local_minimums.add(cur_point)
 
     def count_balls_finally(point):
         if point in local_minimums:
