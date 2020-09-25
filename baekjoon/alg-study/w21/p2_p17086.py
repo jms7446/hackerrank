@@ -2,35 +2,70 @@
 import sys
 from itertools import product
 
-DIRECTIONS = [(0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1)]
+
+################################################################################
+# From util
+################################################################################
+
+class BFSStack:
+    def __init__(self, starts=None, step=0):
+        if starts:
+            self.stack = starts[:]
+        else:
+            self.stack = []
+        self.step = step
+
+    def next_step_iter(self):
+        while self.stack:
+            self.step += 1
+            stack = self.stack
+            self.stack = []
+            yield self.step, stack
+
+    def append(self, v):
+        self.stack.append(v)
+
+    def __repr__(self):
+        return f'BFSStack({self.stack}, {self.step})'
+
+
+class Direction:
+    def __init__(self, dir_type, R, C):
+        if dir_type == 4:
+            self.directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+        elif dir_type == 8:
+            self.directions = [(0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1)]
+        else:
+            raise Exception(f'Unknown dir_type: {dir_type}')
+        self.R = R
+        self.C = C
+
+    def iter_next(self, point):
+        pr, pc = point
+        for dr, dc in self.directions:
+            r, c = pr + dr, pc + dc
+            if 0 <= r < self.R and 0 <= c < self.C:
+                yield r, c
+
+################################################################################
 
 
 def bfs(starts, R, C):
-    dists = [[-1] * C for _ in range(R)]
-    stack = []
-    for r, c in starts:
-        stack.append((r, c))
-        dists[r][c] = 0
-
-    step = 0
-    while stack:
-        step += 1
-        new_stack = []
-        for r, c in stack:
-            for dr, dc in DIRECTIONS:
-                nr, nc = r + dr, c + dc
-                if not (0 <= nr < R and 0 <= nc < C) or dists[nr][nc] != -1:
-                    continue
-                dists[nr][nc] = step
-                new_stack.append((nr, nc))
-        stack = new_stack
-    return dists
+    direction = Direction(8, R, C)
+    visited = set(starts)
+    stack = BFSStack(starts)
+    for _, it in stack.next_step_iter():
+        for cur_point in it:
+            for next_point in direction.iter_next(cur_point):
+                if next_point not in visited:
+                    visited.add(next_point)
+                    stack.append(next_point)
+    return stack.step - 1
 
 
 def solve(R, C, grid):
     starts = [(r, c) for r, c in product(range(R), range(C)) if grid[r][c] == 1]
-    dists = bfs(starts, R, C)
-    return max(max(row) for row in dists)
+    return bfs(starts, R, C)
 
 
 def main():
