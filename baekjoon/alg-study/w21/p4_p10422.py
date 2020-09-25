@@ -1,5 +1,6 @@
 # 괄호
 import sys
+import math
 
 M = 10**9 + 7
 
@@ -18,11 +19,21 @@ def solve(xs):
     return [dp[x // 2] if x % 2 == 0 else 0 for x in xs]
 
 
+def catalan(n):
+    """catalan = (2n)! / ((n + 1)! * n!)"""
+    nfact = math.factorial(n)
+    return math.factorial(2 * n) // nfact // nfact // (n + 1)
+
+
+def solve_with_catalan(xs):
+    return [catalan(x // 2) % M if x % 2 == 0 else 0 for x in xs]
+
+
 def main():
     stdin = sys.stdin
     N = int(stdin.readline())
     xs = [int(stdin.readline()) for _ in range(N)]
-    for r in solve(xs):
+    for r in solve_with_catalan(xs):
         print(r)
 
 
