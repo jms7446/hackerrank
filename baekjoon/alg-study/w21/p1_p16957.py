@@ -4,6 +4,10 @@ from itertools import product
 from collections import defaultdict
 
 
+################################################################################
+# From util
+################################################################################
+
 class Direction:
     def __init__(self, dir_type, R, C):
         if dir_type == 4:
@@ -22,16 +26,18 @@ class Direction:
             if 0 <= r < self.R and 0 <= c < self.C:
                 yield r, c
 
+################################################################################
 
-def count_balls(point, flow_from):
+
+def tree_size(point, children_map):
     count = 0
     stack = [point]
     while stack:
         fr = stack.pop()
         count += 1
-        if fr not in flow_from:
+        if fr not in children_map:
             continue
-        for fr2 in flow_from[fr]:
+        for fr2 in children_map[fr]:
             stack.append(fr2)
     return count
 
@@ -43,23 +49,17 @@ def solve(R, C, grid):
     if R == 1 and C == 1:
         return [[1]]
 
-    local_minimums = set()
-    flow_from = defaultdict(list)
+    roots = set()
+    children_map = defaultdict(list)
     direction = Direction(8, R, C)
     for cur_point in product(range(R), range(C)):
         neighbor_heights = ((get_height(neighbor), neighbor) for neighbor in direction.iter_next(cur_point))
-        min_height, flow_to = min(neighbor_heights)
+        min_height, neighbor = min(neighbor_heights)
         if min_height < get_height(cur_point):
-            flow_from[flow_to].append(cur_point)
+            children_map[neighbor].append(cur_point)
         else:
-            local_minimums.add(cur_point)
-
-    def count_balls_finally(point):
-        if point in local_minimums:
-            return count_balls(point, flow_from)
-        else:
-            return 0
-    return [[count_balls_finally((r, c)) for c in range(C)] for r in range(R)]
+            roots.add(cur_point)
+    return [[tree_size((r, c), children_map) if (r, c) in roots else 0 for c in range(C)] for r in range(R)]
 
 
 def main():
