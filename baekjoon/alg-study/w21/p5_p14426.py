@@ -11,12 +11,24 @@ def solve_naive(corpus, texts):
     return sum(text in prefix_set for text in texts)
 
 
-def solve(corpus, texts):
+def solve_bisect(corpus, texts):
     corpus = sorted(corpus)
     count = 0
     for text in texts:
         idx = bisect_left(corpus, text)
         if idx < len(corpus) and corpus[idx].startswith(text):
+            count += 1
+    return count
+
+
+def solve(corpus, texts):
+    all_texts = sorted(corpus + texts)
+    texts = set(texts)
+    count = 0
+    for i in range(len(all_texts)-1):
+        text = all_texts[i]
+        ptn = all_texts[i+1]
+        if ptn.startswith(text) and text in texts:
             count += 1
     return count
 
