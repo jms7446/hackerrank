@@ -1,39 +1,33 @@
 import sys
 
 
-def right_remain_size(max_size, cut, xs):
-    if xs[0] > max_size:
-        return xs[-1]
-
-    # FIXME 로직이 지저분하고 틀리는 곳이 존재. 갈끔하게 정리해보자.
-    start = 0
-    for i in range(1, len(xs)):
-        if xs[i] - start <= max_size:
-            continue
-        cut -= 1
-        start = xs[i - 1]
-        if cut == 0:
-            break
-        if xs[i] - start > max_size:
-            return xs[-1] - start
-    return xs[-1] - start
+def leftmost_size(max_size, cut, xs):
+    end = xs[-1]
+    for i in reversed(range(len(xs) - 1)):
+        if end - xs[i] > max_size:
+            cut -= 1
+            end = xs[i + 1]
+            if end - xs[i] > max_size:
+                return end
+            if cut == 0:
+                break
+    if cut > 0:
+        end = xs[1]
+    return end
 
 
 def solve(L, K, C, xs):
-    rxs = [L - x for x in reversed(xs)]
-    rxs.append(L)
+    xs = [0] + sorted(xs) + [L]
 
     left = 1
-    right = L
+    right = L - 1
     while left <= right:
         mid = (left + right) // 2
-        if right_remain_size(mid, C, rxs) <= mid:
+        if leftmost_size(mid, C, xs) <= mid:
             right = mid - 1
         else:
             left = mid + 1
-
-    left_most = right_remain_size(left, C, rxs)
-    return left, left_most if left_most > 0 else xs[0]
+    return left, leftmost_size(left, C, xs)
 
 
 def main():
@@ -53,15 +47,17 @@ import random
 
 def test_compare():
     def gen_prob():
-        L, K, C = 9, 3, 2
-        xs = list(range(1, L-1))
+        K = random.randint(1, 100)
+        C = random.randint(1, 100)
+        L = random.randint(K + 1, 1000)
+        xs = list(range(1, L))
         random.shuffle(xs)
         xs = sorted(xs[:K])
         return merge_to_lines([
             (L, K, C),
             xs,
         ])
-    compare_func_results(mock_io(main), ext_binary_to_func('p1114'), generate_probs(gen_prob, count=100))
+    compare_func_results(mock_io(main), ext_binary_to_func('p1114'), generate_probs(gen_prob, count=10))
 
 
 @pytest.mark.parametrize(('in_str', 'out_str'), [
@@ -85,6 +81,13 @@ def test_compare():
     '''.strip(),
      '''
 5 1
+     '''.strip()),
+    ('''
+2 3 2
+
+    '''.strip(),
+     '''
+2 1
      '''.strip()),
 ])
 def test_main(in_str, out_str):
