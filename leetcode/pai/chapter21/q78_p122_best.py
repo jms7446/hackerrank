@@ -1,6 +1,19 @@
 from typing import List, Set, Dict
 import pytest
-# from ..data_structure import *
+from itertools import tee
+
+
+def pairwise(iterable):
+    """s -> (s0,s1), (s1,s2), (s2, s3), ..."""
+    a, b = tee(iterable)
+    next(b, None)
+    return zip(a, b)
+
+
+# 52ms, 14.9MB (99%, 85%)
+class SolutionSecond:
+    def maxProfit(self, prices: List[int]) -> int:
+        return sum(n - p for p, n in pairwise(prices) if p < n)
 
 
 # 64ms, 15MB (68%, 83%)
@@ -9,7 +22,7 @@ class SolutionFirst:
         return sum(n - p for p, n in zip(prices, prices[1:]) if p < n)
 
 
-Solution = SolutionFirst
+Solution = SolutionSecond
 
 
 @pytest.mark.parametrize(['in_', 'out'], [
