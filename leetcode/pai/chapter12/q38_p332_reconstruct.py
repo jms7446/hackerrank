@@ -3,7 +3,6 @@ import pytest
 from collections import defaultdict
 
 
-# TODO 왜 동작하는지 이해는 되지만, 어떻게 이렇게 구성할 수 있는지 구성 방식을 정확히 이해 못함.
 class SolutionFirst:
     def findItinerary(self, tickets: List[List[str]]) -> List[str]:
         graph = defaultdict(list)
