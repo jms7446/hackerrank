@@ -16,14 +16,12 @@ def max_overlap_count(begin_ends, gap):
 
     END, BEGIN = range(2)       # BEGIN must be larger than END for sorting
     begins = [(t, BEGIN) for t in begins]
-    ends = [(t + gap, END) for t in sorted(ends)]
+    ends = [(t + gap, END) for t in ends]
+    merged = sorted(begins + ends)
 
     max_count, count = 0, 0
-    for _, pos in sorted(begins + ends):
-        if pos == BEGIN:
-            count += 1
-        else:
-            count -= 1
+    for _, pos in merged:
+        count += 1 if pos == BEGIN else -1
         max_count = max(max_count, count)
     return max_count
 
