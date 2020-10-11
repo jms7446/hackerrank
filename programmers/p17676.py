@@ -3,32 +3,39 @@ import datetime
 from dateutil import parser
 
 
+def solution(lines):
+    begin_ends = [parse_log_line(line) for line in lines]
+    return max_overlap_count_with_gap(begin_ends, datetime.timedelta(seconds=1))
+
+
 def parse_log_line(line):
     dt_str, et_str = line.rsplit(' ', 1)
+    et_second_str = et_str[:-1]
+
     end = parser.parse(dt_str)
-    elapse_time = datetime.timedelta(seconds=float(et_str[:-1]))
+    elapse_time = datetime.timedelta(seconds=float(et_second_str))
     begin = end - elapse_time + datetime.timedelta(milliseconds=1)
     return begin, end
 
 
-def max_overlap_count(begin_ends, gap):
-    begins, ends = zip(*begin_ends)
+def max_overlap_count_with_gap(begin_ends, gap):
+    begin_ends = ((begin, end + gap) for begin, end in begin_ends)
+    return max_overlap_count(begin_ends)
 
-    END, BEGIN = range(2)       # BEGIN must be larger than END for sorting
-    begins = [(t, BEGIN) for t in begins]
-    ends = [(t + gap, END) for t in ends]
-    merged = sorted(begins + ends)
+
+def max_overlap_count(begin_ends):
+    END, BEGIN = range(2)  # BEGIN must be larger than END for sorting (i.e. must meet that (2, END) < (2, BEGIN))
+    merged = []
+    for begin, end in begin_ends:
+        merged.append((begin, BEGIN))
+        merged.append((end, END))
+    merged.sort()
 
     max_count, count = 0, 0
     for _, pos in merged:
         count += 1 if pos == BEGIN else -1
         max_count = max(max_count, count)
     return max_count
-
-
-def solution(lines):
-    begin_ends = [parse_log_line(line) for line in lines]
-    return max_overlap_count(begin_ends, datetime.timedelta(seconds=1))
 
 
 import pytest
@@ -46,6 +53,6 @@ def test1(in_, out):
     assert solution(in_) == out
 
 
-def test_max_overlap_count():
-    assert max_overlap_count([(0, 1), (1, 2)], 0) == 1
-    assert max_overlap_count([(0, 1), (1, 2)], 1) == 2
+def test_max_overlap_count_with_gap():
+    assert max_overlap_count_with_gap([(0, 1), (1, 2)], 0) == 1
+    assert max_overlap_count_with_gap([(0, 1), (1, 2)], 1) == 2
