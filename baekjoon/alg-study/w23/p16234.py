@@ -20,7 +20,7 @@ class Direction:
                 yield r, c
 
 
-def movement_population(N, L, R, grid):
+def migrate(N, L, R, grid):
     def get_population(state):
         return grid[state[0]][state[1]]
 
@@ -28,6 +28,7 @@ def movement_population(N, L, R, grid):
         grid[state[0]][state[1]] = p
 
     def union_with(start_state):
+        nonlocal migrate_exist
         stack = [start_state]
         visited.add(start_state)
         union = {start_state}
@@ -43,25 +44,25 @@ def movement_population(N, L, R, grid):
                     union_population += neighbor_population
                     stack.append(neighbor_state)
 
-        avg_population = union_population // len(union)
-        for state in union:
-            set_population(state, avg_population)
-        return len(union) > 1
+        if len(union) > 1:
+            migrate_exist = True
+            avg_population = union_population // len(union)
+            for state in union:
+                set_population(state, avg_population)
 
-    population_moved = False
     direction = Direction(4, N, N)
     visited = set()
+    migrate_exist = False
     for state in product(range(N), range(N)):
         if state not in visited:
-            population_moved = union_with(state) or population_moved
-
-    return population_moved
+            union_with(state)
+    return migrate_exist
 
 
 def solve(N, L, R, grid):
     for step in count(0):
-        population_moved = movement_population(N, L, R, grid)
-        if not population_moved:
+        migrate_exist = migrate(N, L, R, grid)
+        if not migrate_exist:
             return step
 
 
